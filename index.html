@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: content-box;
+      }
+      
+      html {
+        height: 100%;
+        width: 100%;
+      }
+
+      body {
+        height: calc(100% - 20px);
+        width: 100%;
+        padding: 10px;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="./src/hello.ts"></script>
+    <div class="container">
+      <hello-world style="flex: 2"></hello-world>
+      <hello-world style="flex: 1"></hello-world>
+    </div>
+  </body>
+</html>

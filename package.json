@@ -1,0 +1,18 @@
+{
+  "name": "wasm-clay-clang",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:vite": "vite",
+    "dev:wasm": "make -C wasm watch",
+    "dev": "make -C wasm -B && run-p dev:vite dev:wasm",
+    "build": "tsc && vite build && make -C wasm",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
+  }
+}
