@@ -10,16 +10,6 @@ Clay_TextElementConfig headerTextConfig = (Clay_TextElementConfig){.fontId = 0, 
 
 Clay_RenderCommandArray renderCommands;
 
-Clay_Color ColorLerp(Clay_Color a, Clay_Color b, float amount)
-{
-    return (Clay_Color){
-        .r = a.r + (b.r - a.r) * amount,
-        .g = a.g + (b.g - a.g) * amount,
-        .b = a.b + (b.b - a.b) * amount,
-        .a = a.a + (b.a - a.a) * amount,
-    };
-}
-
 __attribute__((import_module("debug"), import_name("print"))) void debugPrint(int int1, int int2, float float1);
 
 CLAY_WASM_EXPORT("init")
@@ -53,7 +43,7 @@ int render_component(int width, int height, float deltaTime)
     Clay_BeginLayout();
 
     CLAY(CLAY_ID("OuterContainer"), CLAY_LAYOUT({.layoutDirection = CLAY_TOP_TO_BOTTOM, .sizing = {CLAY_SIZING_FIXED(width), CLAY_SIZING_FIXED(height)}}),
-         CLAY_RECTANGLE({.color = ColorLerp(COLOR_BLACK, COLOR_WHITE, lerpValue), .cornerRadius = CLAY_CORNER_RADIUS(10)}))
+         CLAY_RECTANGLE({.color = COLOR_BLACK, .cornerRadius = CLAY_CORNER_RADIUS(10)}))
     {
         {
             CLAY(CLAY_ID("Header"), CLAY_LAYOUT({.layoutDirection = CLAY_LEFT_TO_RIGHT, .sizing = {CLAY_SIZING_GROW({}), CLAY_SIZING_FIT({})}}),
@@ -61,11 +51,11 @@ int render_component(int width, int height, float deltaTime)
                  CLAY_BORDER({.top = {2, COLOR_RED}, .bottom = {2, COLOR_RED}, .left = {2, COLOR_RED}, .right = {2, COLOR_RED}, .cornerRadius = CLAY_CORNER_RADIUS(10)}))
             {
                 CLAY_TEXT(CLAY_STRING("Left"), &headerTextConfig);
-                CLAY(CLAY_LAYOUT({.sizing = {CLAY_SIZING_GROW({}), CLAY_SIZING_FIT({})}}));
+                CLAY(CLAY_LAYOUT({.sizing = {CLAY_SIZING_FIXED(20 + 40.0f * lerpValue), CLAY_SIZING_FIT({})}}));
                 CLAY_TEXT(CLAY_STRING("Right"), &headerTextConfig);
             }
-            CLAY_TEXT(CLAY_STRING("Hello"), CLAY_TEXT_CONFIG({.fontId = 0, .fontSize = 24, .textColor = ColorLerp(COLOR_WHITE, COLOR_BLACK, lerpValue)}));
-            CLAY_TEXT(CLAY_STRING("World"), CLAY_TEXT_CONFIG({.fontId = 0, .fontSize = 24, .textColor = ColorLerp(COLOR_WHITE, COLOR_BLACK, lerpValue)}));
+            CLAY_TEXT(CLAY_STRING("Hello"), CLAY_TEXT_CONFIG({.fontId = 0, .fontSize = 24, .textColor = COLOR_WHITE}));
+            CLAY_TEXT(CLAY_STRING("World"), CLAY_TEXT_CONFIG({.fontId = 0, .fontSize = 24, .textColor = COLOR_WHITE}));
         }
     }
 
