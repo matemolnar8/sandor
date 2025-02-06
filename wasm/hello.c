@@ -58,7 +58,7 @@ int render_component(int width, int height, float deltaTime)
         {
             CLAY(CLAY_ID("Header"), CLAY_LAYOUT({.layoutDirection = CLAY_LEFT_TO_RIGHT, .sizing = {CLAY_SIZING_GROW({}), CLAY_SIZING_FIT({})}}),
                  CLAY_RECTANGLE({.color = COLOR_WHITE, .cornerRadius = CLAY_CORNER_RADIUS(10)}),
-                 CLAY_BORDER({.top = {2, COLOR_RED}, .bottom = {2, COLOR_RED}, .left = {2, COLOR_RED}, .right = {2, COLOR_RED}, .cornerRadius = CLAY_CORNER_RADIUS(30)}))
+                 CLAY_BORDER({.top = {2, COLOR_RED}, .bottom = {2, COLOR_RED}, .left = {2, COLOR_RED}, .right = {2, COLOR_RED}, .cornerRadius = CLAY_CORNER_RADIUS(10)}))
             {
                 CLAY_TEXT(CLAY_STRING("Left"), &headerTextConfig);
                 CLAY(CLAY_LAYOUT({.sizing = {CLAY_SIZING_GROW({}), CLAY_SIZING_FIT({})}}));

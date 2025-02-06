@@ -150,7 +150,41 @@ export class ClayCanvasRenderer {
   #handleBorderCommand(renderCommand: StructValue<typeof renderCommandDefinition>) {
     const config = readStructValueAtAddress(renderCommand.config.value, borderConfigDefinition, this.memoryDataView);
     const boundingBox = renderCommand.boundingBox;
-    console.log("border", config, boundingBox);
+    const cr = config.cornerRadius;
+
+    const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
+      this.canvasCtx.beginPath();
+      this.canvasCtx.moveTo(x + radius, y);
+      this.canvasCtx.lineTo(x + width - radius, y);
+      this.canvasCtx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      this.canvasCtx.lineTo(x + width, y + height - radius);
+      this.canvasCtx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      this.canvasCtx.lineTo(x + radius, y + height);
+      this.canvasCtx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      this.canvasCtx.lineTo(x, y + radius);
+      this.canvasCtx.quadraticCurveTo(x, y, x + radius, y);
+      this.canvasCtx.closePath();
+    };
+
+    const drawBorder = (border: typeof config.left, x: number, y: number, width: number, height: number, radius: number) => {
+      if (border.width.value === 0) return;
+
+      this.canvasCtx.lineWidth = border.width.value * scale;
+      this.canvasCtx.strokeStyle = `rgba(${border.color.r.value}, ${border.color.g.value}, ${border.color.b.value}, ${border.color.a.value / 255})`;
+      drawRoundedRect(x + this.canvasCtx.lineWidth / 2, y + this.canvasCtx.lineWidth / 2, width - this.canvasCtx.lineWidth, height - this.canvasCtx.lineWidth, radius);
+      this.canvasCtx.stroke();
+    };
+
+    const x = boundingBox.x.value * scale;
+    const y = boundingBox.y.value * scale;
+    const width = boundingBox.width.value * scale;
+    const height = boundingBox.height.value * scale;
+    const radius = Math.min(cr.topLeft.value, cr.topRight.value, cr.bottomRight.value, cr.bottomLeft.value) * scale;
+
+    drawBorder(config.top, x, y, width, height, radius);
+    drawBorder(config.bottom, x, y, width, height, radius);
+    drawBorder(config.left, x, y, width, height, radius);
+    drawBorder(config.right, x, y, width, height, radius);
   }
 
   render(deltaTime: number) {
@@ -191,6 +225,6 @@ export class ClayCanvasRenderer {
     const elapsed = currentTime - this.previousFrameTime;
     this.previousFrameTime = currentTime;
     this.render(elapsed / 1000);
-    // requestAnimationFrame((time) => this.renderLoop(time));
+    requestAnimationFrame((time) => this.renderLoop(time));
   }
 }
