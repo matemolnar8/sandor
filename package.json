@@ -1,5 +1,5 @@
 {
-  "name": "wasm-clay-clang",
+  "name": "c-to-webcomponent",
   "private": true,
   "version": "0.0.0",
   "type": "module",

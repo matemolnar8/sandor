@@ -1,10 +1,8 @@
-import { ClayCanvasRenderer } from "./clay-canvas-renderer";
+import { HelloWasmComponent } from "./hello-wasm-component";
 import { assertAndGet } from "./util/assert-value";
 
 class HelloWorldElement extends HTMLElement {
-  clayCanvasRenderer: ClayCanvasRenderer | undefined;
-  canvas: HTMLCanvasElement | undefined;
-  ctx: CanvasRenderingContext2D | undefined;
+  helloWasmComponent: HelloWasmComponent | undefined;
 
   constructor() {
     super();
@@ -18,12 +16,8 @@ class HelloWorldElement extends HTMLElement {
           height: 100%;
           background-color: white;
         }
-        canvas {
-          width: 100%;
-          height: 100%;
-        }
       </style>
-      <canvas></canvas>
+      <h1 id="hello"></h1>
     `;
   }
 
@@ -32,21 +26,13 @@ class HelloWorldElement extends HTMLElement {
   }
 
   async connectedCallback() {
-    this.canvas = assertAndGet(this.shadowRoot.querySelector("canvas"), "Could not find canvas");
-    this.ctx = assertAndGet(this.canvas.getContext("2d"), "Could not get canvas context");
-    this.clayCanvasRenderer = new ClayCanvasRenderer("./hello.wasm", this.canvas, this.ctx);
-    await this.clayCanvasRenderer.init();
+    this.helloWasmComponent = new HelloWasmComponent("./hello.wasm");
+    await this.helloWasmComponent.init();
 
-    this.updateCanvasSize();
-    window.addEventListener("resize", this.updateCanvasSize.bind(this));
-
-    this.clayCanvasRenderer.renderLoop();
-  }
-
-  updateCanvasSize() {
-    const canvas = assertAndGet(this.canvas, "Canvas not found");
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+    const hello = this.shadowRoot.getElementById("hello");
+    if (hello) {
+      hello.textContent = this.helloWasmComponent.render();
+    }
   }
 }
 

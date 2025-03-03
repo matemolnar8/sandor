@@ -13,6 +13,7 @@ hello.wasm: hello.c
 		-Wl,--export=__heap_base \
 		-std=c17 \
 		-Wl,--initial-memory=10485760 \
+		-Wl,--allow-undefined \
 		-o ../public/hello.wasm \
 		hello.c
 

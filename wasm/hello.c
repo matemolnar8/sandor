@@ -1,77 +1,51 @@
-#include "low_budget_memory.c"
-#define CLAY_IMPLEMENTATION
-#include "clay.h"
-
-const Clay_Color COLOR_BLACK = (Clay_Color){0, 0, 0, 255};
-const Clay_Color COLOR_WHITE = (Clay_Color){255, 255, 255, 255};
-const Clay_Color COLOR_RED = (Clay_Color){255, 0, 0, 255};
-
-Clay_TextElementConfig headerTextConfig = (Clay_TextElementConfig){.fontId = 0, .fontSize = 36, .textColor = COLOR_RED};
-
-Clay_RenderCommandArray renderCommands;
-
-__attribute__((import_module("debug"), import_name("print"))) void debugPrint(int int1, int int2, float float1);
-
-CLAY_WASM_EXPORT("init")
-int init(int width, int height)
+#include <stddef.h>
+#define ARENA_IMPLEMENTATION
+#define ARENA_NOSTDIO
+#define ARENA_ASSERT(cond) (!(cond) ? printf("%s:%d: %s: Assertion `%s' failed.", __FILE__, __LINE__, __func__, #cond), __builtin_trap() : 0)
+#include <stdarg.h>
+#define STB_SPRINTF_IMPLEMENTATION
+#include "stb_sprintf.h"
+#define WRITE_BUFFER_CAPACITY 4096
+char write_buffer[WRITE_BUFFER_CAPACITY];
+void platform_write(void *buffer, size_t len);
+int printf(const char *fmt, ...)
 {
-    uint64_t totalMemorySize = Clay_MinMemorySize();
-    void *memory = malloc(totalMemorySize);
-    if (memory == NULL)
-    {
-        return 69;
+    va_list args;
+    va_start(args, fmt);
+    int n = stbsp_vsnprintf(write_buffer, WRITE_BUFFER_CAPACITY, fmt, args);
+    va_end(args);
+    platform_write(write_buffer, n);
+    return n;
+}
+#define ARENA_BACKEND ARENA_BACKEND_WASM_HEAPBASE
+#include "arena.h"
+
+typedef struct {
+    char* data;
+    size_t length;
+} String;
+
+__attribute__((export_name("render_component")))
+String* render_component()
+{
+    Arena arena;
+    String* result = arena_alloc(&arena, sizeof(String));
+    if (result == NULL) {
+        return NULL;
     }
 
-    Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
-    Clay_Initialize(arena, (Clay_Dimensions){width, height});
+    const char* message = "my name jeff";
+    size_t message_length = 13;
 
-    return 0;
-}
+    result->data = arena_alloc(&arena, message_length + 1);
 
-float animationLerpValue = -1.0f;
-
-CLAY_WASM_EXPORT("render_component")
-int render_component(int width, int height, float deltaTime)
-{
-    animationLerpValue += deltaTime * 0.5f;
-    if (animationLerpValue > 1)
-    {
-        animationLerpValue -= 2;
+    for (size_t i = 0; i < message_length; ++i) {
+        result->data[i] = message[i];
     }
+    result->data[message_length] = '\0';
+    result->length = message_length;
 
-    float lerpValue = animationLerpValue < 0 ? (animationLerpValue + 1) : (1 - animationLerpValue);
-    Clay_BeginLayout();
+    printf("render_component: %s\n", result->data);
 
-    CLAY(CLAY_ID("OuterContainer"), CLAY_LAYOUT({.layoutDirection = CLAY_TOP_TO_BOTTOM, .sizing = {CLAY_SIZING_FIXED(width), CLAY_SIZING_FIXED(height)}}),
-         CLAY_RECTANGLE({.color = COLOR_BLACK, .cornerRadius = CLAY_CORNER_RADIUS(10)}))
-    {
-        {
-            CLAY(CLAY_ID("Header"), CLAY_LAYOUT({.layoutDirection = CLAY_LEFT_TO_RIGHT, .sizing = {CLAY_SIZING_GROW({}), CLAY_SIZING_FIT({})}}),
-                 CLAY_RECTANGLE({.color = COLOR_WHITE, .cornerRadius = CLAY_CORNER_RADIUS(10)}),
-                 CLAY_BORDER({.top = {2, COLOR_RED}, .bottom = {2, COLOR_RED}, .left = {2, COLOR_RED}, .right = {2, COLOR_RED}, .cornerRadius = CLAY_CORNER_RADIUS(10)}))
-            {
-                CLAY_TEXT(CLAY_STRING("Left"), &headerTextConfig);
-                CLAY(CLAY_LAYOUT({.sizing = {CLAY_SIZING_FIXED(20 + 40.0f * lerpValue), CLAY_SIZING_FIT({})}}));
-                CLAY_TEXT(CLAY_STRING("Right"), &headerTextConfig);
-            }
-            CLAY_TEXT(CLAY_STRING("Hello"), CLAY_TEXT_CONFIG({.fontId = 0, .fontSize = 24, .textColor = COLOR_WHITE}));
-            CLAY_TEXT(CLAY_STRING("World"), CLAY_TEXT_CONFIG({.fontId = 0, .fontSize = 24, .textColor = COLOR_WHITE}));
-        }
-    }
-
-    renderCommands = Clay_EndLayout();
-
-    return 0;
-}
-
-CLAY_WASM_EXPORT("get_render_commands_length")
-int get_render_commands_length()
-{
-    return renderCommands.length;
-}
-
-CLAY_WASM_EXPORT("get_render_command")
-Clay_RenderCommand *get_render_command(int index)
-{
-    return Clay_RenderCommandArray_Get(&renderCommands, index);
+    return result;
 }
