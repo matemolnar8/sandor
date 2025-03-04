@@ -31,7 +31,10 @@ class HelloWorldElement extends HTMLElement {
 
     const hello = this.shadowRoot.getElementById("hello");
     if (hello) {
-      hello.textContent = this.helloWasmComponent.render();
+      const render = () => {
+        hello.textContent = this.helloWasmComponent!.render();
+      };
+      render();
     }
   }
 }

@@ -49,8 +49,12 @@ export class HelloWasmComponent {
   }
 
   readString(address: number) {
-    const length = this.memoryDataView.getUint32(address, true);
-    const data = new Uint8Array(this.instance.exports.memory.buffer, address + 4, length);
+    const dataView = new DataView(this.instance.exports.memory.buffer);
+
+    const length = dataView.getUint32(address, true);
+    const dataPtr = dataView.getUint32(address + 4, true);
+
+    const data = new Uint8Array(this.instance.exports.memory.buffer, dataPtr, length);
 
     return new TextDecoder().decode(data);
   }

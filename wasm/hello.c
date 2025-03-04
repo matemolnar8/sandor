@@ -21,31 +21,27 @@ int printf(const char *fmt, ...)
 #include "arena.h"
 
 typedef struct {
-    char* data;
     size_t length;
+    char* data;
 } String;
+
+Arena render_result_arena = {0};
+
+int render_count = 0;
 
 __attribute__((export_name("render_component")))
 String* render_component()
 {
-    Arena arena;
-    String* result = arena_alloc(&arena, sizeof(String));
-    if (result == NULL) {
-        return NULL;
-    }
+    arena_reset(&render_result_arena);
+    render_count++;
 
-    const char* message = "my name jeff";
-    size_t message_length = 13;
+    String* result = arena_alloc(&render_result_arena, sizeof(String));
 
-    result->data = arena_alloc(&arena, message_length + 1);
+    char* message = arena_alloc(&render_result_arena, WRITE_BUFFER_CAPACITY);
+    int message_length = stbsp_sprintf(message, "Render count: %d", render_count);
 
-    for (size_t i = 0; i < message_length; ++i) {
-        result->data[i] = message[i];
-    }
-    result->data[message_length] = '\0';
     result->length = message_length;
-
-    printf("render_component: %s\n", result->data);
+    result->data = message;
 
     return result;
 }
