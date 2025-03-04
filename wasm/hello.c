@@ -25,23 +25,33 @@ typedef struct {
     char* data;
 } String;
 
+typedef struct {
+    String* type;
+    String* text;
+} Element;
+
 Arena render_result_arena = {0};
 
 int render_count = 0;
 
 __attribute__((export_name("render_component")))
-String* render_component()
+Element* render_component()
 {
     arena_reset(&render_result_arena);
     render_count++;
 
-    String* result = arena_alloc(&render_result_arena, sizeof(String));
+    Element* result = arena_alloc(&render_result_arena, sizeof(Element));
 
     char* message = arena_alloc(&render_result_arena, WRITE_BUFFER_CAPACITY);
     int message_length = stbsp_sprintf(message, "Render count: %d", render_count);
 
-    result->length = message_length;
-    result->data = message;
+    result->text = arena_alloc(&render_result_arena, sizeof(String));
+    result->text->length = message_length;
+    result->text->data = message;
+
+    result->type = arena_alloc(&render_result_arena, sizeof(String));
+    result->type->length = 2;
+    result->type->data = "h1";
 
     return result;
 }

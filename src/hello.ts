@@ -17,7 +17,7 @@ class HelloWorldElement extends HTMLElement {
           background-color: white;
         }
       </style>
-      <h1 id="hello"></h1>
+      <div id="hello"></div>
     `;
   }
 
@@ -32,7 +32,10 @@ class HelloWorldElement extends HTMLElement {
     const hello = this.shadowRoot.getElementById("hello");
     if (hello) {
       const render = () => {
-        hello.textContent = this.helloWasmComponent!.render();
+        const result = this.helloWasmComponent!.render();
+        const element = document.createElement(result.tag);
+        element.textContent = result.text;
+        hello.appendChild(element);
       };
       render();
     }

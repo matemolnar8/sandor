@@ -43,9 +43,21 @@ export class HelloWasmComponent {
 
   render() {
     const resultAddr = this.instance.exports.render_component();
-    const result = this.readString(resultAddr);
+    const result = this.readElement(resultAddr);
 
     return result;
+  }
+
+  readElement(address: number) { 
+    const dataView = new DataView(this.instance.exports.memory.buffer);
+    
+    const tagPtr = dataView.getUint32(address, true);
+    const tag = this.readString(tagPtr);
+
+    const textPtr = dataView.getUint32(address + 4, true);
+    const text = this.readString(textPtr);
+
+    return { tag, text };
   }
 
   readString(address: number) {
