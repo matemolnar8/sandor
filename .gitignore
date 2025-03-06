@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# nob build system binary
+nob
+nob.old
+
+# Wasm binaries
+*.wasm

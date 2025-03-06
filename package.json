@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
-    "dev:wasm": "make -C wasm watch",
-    "dev": "make -C wasm -B && run-p dev:vite dev:wasm",
-    "build": "tsc && vite build && make -C wasm",
+    "dev": "run-p dev:vite build",
+    "build": "tsc && vite build && ./nob",
     "preview": "vite preview"
   },
   "devDependencies": {
