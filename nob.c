@@ -2,20 +2,6 @@
 #define NOB_STRIP_PREFIX
 #define NOB_EXPERIMENTAL_DELETE_OLD
 #include "nob.h"
-#include <stdbool.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <fcntl.h>
-
-#ifdef __APPLE__
-#include <sys/event.h>
-#elif defined(__linux__)
-#include <sys/inotify.h>
-#include <limits.h>
-#endif
 
 #define WASM_CFLAGS "-Wall", "-Werror", "-Os", "-DCLAY_WASM", "-mbulk-memory", "--target=wasm32", "-nostdlib"
 #define WASM_LDFLAGS "-Wl,--strip-all", "-Wl,--export-dynamic", "-Wl,--no-entry", "-Wl,--export=__heap_base", \
