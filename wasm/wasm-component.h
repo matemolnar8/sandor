@@ -1,8 +1,6 @@
 #include <stddef.h>
-#define ARENA_IMPLEMENTATION
-#define ARENA_NOSTDIO
-#define ARENA_ASSERT(cond) (!(cond) ? printf("%s:%d: %s: Assertion `%s' failed.", __FILE__, __LINE__, __func__, #cond), __builtin_trap() : 0)
 #include <stdarg.h>
+
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
 #define WRITE_BUFFER_CAPACITY 4096
@@ -17,6 +15,10 @@ int printf(const char *fmt, ...)
     platform_write(write_buffer, n);
     return n;
 }
+
+#define ARENA_IMPLEMENTATION
+#define ARENA_NOSTDIO
+#define ARENA_ASSERT(cond) (!(cond) ? printf("%s:%d: %s: Assertion `%s' failed.", __FILE__, __LINE__, __func__, #cond), __builtin_trap() : 0)
 #define ARENA_BACKEND ARENA_BACKEND_WASM_HEAPBASE
 #include "arena.h"
 
@@ -45,4 +47,13 @@ Element* create_text_element(const char* text, const char* type)
     result->children = NULL;
 
     return result;
+}
+
+Element* render_component();
+
+[[clang::export_name("render_component")]]
+Element* render_component_internal() {
+    arena_reset(&render_result_arena);
+
+    return render_component();
 }

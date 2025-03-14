@@ -2,10 +2,8 @@
 
 int render_count = 0;
 
-__attribute__((export_name("render_component")))
 Element* render_component()
 {
-    arena_reset(&render_result_arena);
     render_count++;
 
     Element* result = arena_alloc(&render_result_arena, sizeof(Element));
