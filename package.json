@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
-    "dev": "run-p dev:vite build",
+    "dev": "run-p dev:vite nob",
+    "nob": "./nob",
     "build": "tsc && vite build && ./nob",
     "preview": "vite preview"
   },

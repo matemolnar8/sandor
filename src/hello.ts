@@ -1,8 +1,8 @@
-import { HelloWasmComponent } from "./hello-wasm-component";
+import { WasmComponent, ResultElement } from "./wasm-component";
 import { assertAndGet } from "./util/assert-value";
 
 class HelloWorldElement extends HTMLElement {
-  helloWasmComponent: HelloWasmComponent | undefined;
+  wasmComponent: WasmComponent | undefined;
 
   constructor() {
     super();
@@ -18,6 +18,7 @@ class HelloWorldElement extends HTMLElement {
         }
       </style>
       <div id="hello"></div>
+      <button id="debugRerender">Render</button>      
     `;
   }
 
@@ -26,18 +27,37 @@ class HelloWorldElement extends HTMLElement {
   }
 
   async connectedCallback() {
-    this.helloWasmComponent = new HelloWasmComponent("./hello.wasm");
-    await this.helloWasmComponent.init();
+    this.wasmComponent = new WasmComponent("./hello.wasm");
+    await this.wasmComponent.init();
 
-    const hello = this.shadowRoot.getElementById("hello");
-    if (hello) {
-      const render = () => {
-        const result = this.helloWasmComponent!.render();
-        const element = document.createElement(result.tag);
-        element.textContent = result.text;
-        hello.appendChild(element);
+    this.render();
+
+    this.shadowRoot.getElementById("debugRerender")?.addEventListener("click", () => {
+      this.render();
+    });
+  }
+
+  render() {
+    const parent = this.shadowRoot.getElementById("hello");
+    if (parent) {
+      parent.innerHTML = "";
+      const root = this.wasmComponent!.render();
+
+      const renderElement = (renderResult: ResultElement, parentElement: HTMLElement) => {
+        const element = document.createElement(renderResult.type);
+
+        if (renderResult.text) {
+          element.textContent = renderResult.text;
+        }
+
+        if (Array.isArray(renderResult.children)) {
+          renderResult.children.forEach((childResult) => renderElement(childResult, element));
+        }
+
+        parentElement.appendChild(element);
       };
-      render();
+
+      renderElement(root, parent);
     }
   }
 }
