@@ -4,6 +4,7 @@ type WasmInstance = {
   exports: {
     memory: WebAssembly.Memory;
     render_component: () => number;
+    invoke_on_click: (elementPtr: number) => void;
   };
 };
 
@@ -13,12 +14,14 @@ export type ResultElement = {
   type: string;
   text?: string;
   children?: ResultElement[];
+  onClick?: () => void;
 };
 
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
   #memoryDataView: DataView | undefined;
   wasmPath: string;
+  parent: HTMLElement | undefined;
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -32,13 +35,17 @@ export class WasmComponent {
     return assertAndGet(this.#memoryDataView, "Memory data view not found");
   }
 
-  async init() {
+  async init(parent: HTMLElement) {
+    this.parent = parent;
     this.#instance = (
-      await WebAssembly.instantiateStreaming(fetch("./hello.wasm"), {
+      await WebAssembly.instantiateStreaming(fetch(this.wasmPath), {
         env: {
           platform_write: (buf: number, len: number) => {
             const text = decoder.decode(new Uint8Array(this.instance.exports.memory.buffer, buf, len));
             console.log(text);
+          },
+          platform_rerender: () => {
+            this.render();
           },
         },
       })
@@ -49,9 +56,32 @@ export class WasmComponent {
 
   render() {
     const resultAddr = this.instance.exports.render_component();
-    const result = this.readElement(resultAddr);
+    const root = this.readElement(resultAddr);
 
-    return result;
+    if (!this.parent) {
+      return;
+    }
+    this.parent.innerHTML = "";
+
+    const renderElement = (renderResult: ResultElement, parentElement: HTMLElement) => {
+      const element = document.createElement(renderResult.type);
+
+      if (renderResult.text) {
+        element.textContent = renderResult.text;
+      }
+
+      if (Array.isArray(renderResult.children)) {
+        renderResult.children.forEach((childResult) => renderElement(childResult, element));
+      }
+
+      if (renderResult.onClick) {
+        element.addEventListener("click", renderResult.onClick);
+      }
+
+      parentElement.appendChild(element);
+    };
+
+    renderElement(root, this.parent);
   }
 
   readElement(address: number): ResultElement {
@@ -75,7 +105,15 @@ export class WasmComponent {
       children = childrenArray.map((childAddr) => this.readElement(childAddr));
     }
 
-    return { type, text, children };
+    let onClick: (() => void) | undefined;
+    const onClickPtr = dataView.getUint32(address + 12, true);
+    if (onClickPtr !== 0) {
+      onClick = () => {
+        this.instance.exports.invoke_on_click(address);
+      };
+    }
+
+    return { type, text, children, onClick };
   }
 
   readDynamicPointerArray(address: number) {
