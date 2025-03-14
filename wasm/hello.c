@@ -1,22 +1,19 @@
 #include "wasm-component.h"
 
+#define MESSAGE_CAPACITY 256
+
 int render_count = 0;
 
 Element* render_component()
 {
     render_count++;
-
-    Element* result = arena_alloc(&render_result_arena, sizeof(Element));
-
-    char* message = arena_alloc(&render_result_arena, WRITE_BUFFER_CAPACITY);
+    char* message = arena_alloc(&render_result_arena, MESSAGE_CAPACITY);
     stbsp_sprintf(message, "Render count: %d", render_count);
 
-    Element* text_element = create_text_element(message, "h1");
-    result->children = arena_alloc(&render_result_arena, sizeof(Children));
-    result->children->count = 0;
-    arena_da_append(&render_result_arena, result->children, text_element);
+    Element* result = create_element("div", children());
 
-    result->type = "div";
+    Element* render_count_element = create_text_element("h1", message);
+    arena_da_append(&render_result_arena, result->children, render_count_element);
 
     return result;
 }

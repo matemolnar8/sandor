@@ -18,7 +18,7 @@ class HelloWorldElement extends HTMLElement {
         }
       </style>
       <div id="hello"></div>
-      <button id="debugRerender">Render</button>      
+      <button id="debugRerender">Debug - Rerender</button>      
     `;
   }
 

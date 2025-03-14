@@ -38,14 +38,31 @@ struct Element {
 
 Arena render_result_arena = {0};
 
-Element* create_text_element(const char* text, const char* type)
+Element* create_element(const char* type, Children* children)
 {
     Element* result = arena_alloc(&render_result_arena, sizeof(Element));
 
-    result->text = text;
     result->type = type;
-    result->children = NULL;
+    result->text = NULL;
+    result->children = children;
 
+    return result;
+}
+
+Element* create_text_element(const char* type, const char* text)
+{
+    Element* result = create_element(type, NULL);
+
+    result->text = text;
+
+    return result;
+}
+
+Children* children() {
+    Children* result = arena_alloc(&render_result_arena, sizeof(Children));
+    result->count = 0;
+    result->capacity = 0;
+    result->items = NULL;
     return result;
 }
 
