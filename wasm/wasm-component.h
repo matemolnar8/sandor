@@ -34,9 +34,20 @@ struct Element {
     const char* type;
     const char* text;
     Children* children;
+    void (*on_click)();
 };
 
 Arena render_result_arena = {0};
+
+void platform_rerender();
+
+Children* children() {
+    Children* result = arena_alloc(&render_result_arena, sizeof(Children));
+    result->count = 0;
+    result->capacity = 0;
+    result->items = NULL;
+    return result;
+}
 
 Element* create_element(const char* type, Children* children)
 {
@@ -49,20 +60,23 @@ Element* create_element(const char* type, Children* children)
     return result;
 }
 
+Element* create_button(const char* text, void (*callback)())
+{
+    Element* result = create_element("button", children());
+
+    result->text = text;
+    result->on_click = callback;
+
+    return result;
+}
+
+
 Element* create_text_element(const char* type, const char* text)
 {
     Element* result = create_element(type, NULL);
 
     result->text = text;
 
-    return result;
-}
-
-Children* children() {
-    Children* result = arena_alloc(&render_result_arena, sizeof(Children));
-    result->count = 0;
-    result->capacity = 0;
-    result->items = NULL;
     return result;
 }
 
@@ -73,4 +87,12 @@ Element* render_component_internal() {
     arena_reset(&render_result_arena);
 
     return render_component();
+}
+
+[[clang::export_name("invoke_on_click")]]
+void invoke_on_click(Element* element) {
+    if (element->on_click) {
+        element->on_click();
+        platform_rerender();
+    }
 }
