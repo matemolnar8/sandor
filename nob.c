@@ -41,6 +41,10 @@ int main(int argc, char **argv)
     if (!build_wasm_component("test")) {
         return 1;
     }
+
+    if (!build_wasm_component("todolist")) {
+        return 1;
+    }
     
     return 0;
 }

@@ -1,7 +1,7 @@
 import { WasmComponent } from "./wasm-component";
 import { assertAndGet } from "./util/assert-value";
 
-class WasmTestComponentElement extends HTMLElement {
+class WasmShellComponent extends HTMLElement {
   wasmComponent: WasmComponent | undefined;
 
   constructor() {
@@ -9,7 +9,7 @@ class WasmTestComponentElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     this.shadowRoot.innerHTML = `
-      <div id="test"></div>
+      <div id="root"></div>
       <button id="debugRerender">Debug - Rerender</button>      
     `;
   }
@@ -19,9 +19,10 @@ class WasmTestComponentElement extends HTMLElement {
   }
 
   async connectedCallback() {
-    this.wasmComponent = new WasmComponent("./test.wasm");
+    const name = this.getAttribute("name") || "test";
+    this.wasmComponent = new WasmComponent(`./${name}.wasm`);
 
-    const root = this.shadowRoot.getElementById("test");
+    const root = this.shadowRoot.getElementById("root");
 
     if (!root) {
       return;
@@ -37,4 +38,4 @@ class WasmTestComponentElement extends HTMLElement {
   }
 }
 
-customElements.define("wasm-test-component", WasmTestComponentElement);
+customElements.define("wasm-shell-component", WasmShellComponent);
