@@ -11,16 +11,10 @@ Element* render_component()
 {
     render_count++;
 
-    Element* count_element = text_element("h2");
-    stbsp_sprintf(count_element->text, "Count: %d", count);
-
-    Element* render_count_element = text_element("p");
-    stbsp_sprintf(render_count_element->text, "Render count: %d", render_count);
-
     return element("div", children(
         text_element_with_text("h1", "Hello, world!"),
-        count_element,
-        render_count_element,
+        text_element_with_text("h2", arena_sprintf(&render_result_arena, "Count: %d", count)),
+        text_element_with_text("p", arena_sprintf(&render_result_arena, "Render count: %d", render_count)),
         button("Increment", button_callback)
     ));
 }
