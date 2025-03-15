@@ -42,6 +42,22 @@ void platform_rerender();
 
 Arena render_result_arena = {0};
 
+char *arena_sprintf(Arena* a, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    int n = stbsp_vsnprintf(NULL, 0, format, args);
+    va_end(args);
+
+    ARENA_ASSERT(n >= 0);
+    char *result = (char*)arena_alloc(a, n + 1);
+    va_start(args, format);
+    stbsp_vsnprintf(result, n + 1, format, args);
+    va_end(args);
+
+    return result;
+}
+
 #define children(...) _children(_NARG(__VA_ARGS__), __VA_ARGS__)
 #define children_empty() _children(0)
 
@@ -69,6 +85,7 @@ Element* element(const char* type, Children* children)
     result->type = type;
     result->text = NULL;
     result->children = children;
+    result->on_click = NULL;
 
     return result;
 }
