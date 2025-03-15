@@ -62,7 +62,7 @@ Children* _children(size_t count, ...) {
     return result;
 }
 
-Element* create_element(const char* type, Children* children)
+Element* element(const char* type, Children* children)
 {
     Element* result = arena_alloc(&render_result_arena, sizeof(Element));
 
@@ -73,9 +73,9 @@ Element* create_element(const char* type, Children* children)
     return result;
 }
 
-Element* create_button(char* text, void (*callback)())
+Element* button(char* text, void (*callback)())
 {
-    Element* result = create_element("button", children_empty());
+    Element* result = element("button", children_empty());
 
     result->text = text;
     result->on_click = callback;
@@ -85,18 +85,18 @@ Element* create_button(char* text, void (*callback)())
 
 #define TEXT_CAPACITY 256
 
-Element* create_text_element(const char* type)
+Element* text_element(const char* type)
 {
-    Element* result = create_element(type, NULL);
+    Element* result = element(type, NULL);
 
     result->text = arena_alloc(&render_result_arena, TEXT_CAPACITY);
 
     return result;
 }
 
-Element* create_text_element_with_text(const char* type, const char* text)
+Element* text_element_with_text(const char* type, const char* text)
 {
-    Element* result = create_element(type, NULL);
+    Element* result = element(type, NULL);
 
     result->text = arena_strdup(&render_result_arena, text);
 
