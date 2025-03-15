@@ -1,8 +1,9 @@
 #include <stddef.h>
 #include <stdarg.h>
-
+#include "macros.h"
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
+
 #define WRITE_BUFFER_CAPACITY 4096
 char write_buffer[WRITE_BUFFER_CAPACITY];
 void platform_write(void *buffer, size_t len);
@@ -41,11 +42,23 @@ void platform_rerender();
 
 Arena render_result_arena = {0};
 
-Children* children() {
+#define children(...) _children(_NARG(__VA_ARGS__), __VA_ARGS__)
+#define children_empty() _children(0)
+
+Children* _children(size_t count, ...) {
     Children* result = arena_alloc(&render_result_arena, sizeof(Children));
     result->count = 0;
     result->capacity = 0;
     result->items = NULL;
+
+    va_list args;
+    va_start(args, count);
+    for (size_t i = 0; i < count; i++) {
+        Element* element = va_arg(args, Element*);
+        arena_da_append(&render_result_arena, result, element);
+    }
+    va_end(args);
+
     return result;
 }
 
@@ -62,7 +75,7 @@ Element* create_element(const char* type, Children* children)
 
 Element* create_button(char* text, void (*callback)())
 {
-    Element* result = create_element("button", children());
+    Element* result = create_element("button", children_empty());
 
     result->text = text;
     result->on_click = callback;
