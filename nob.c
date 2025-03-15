@@ -7,11 +7,10 @@
 #define WASM_LDFLAGS "-Wl,--strip-all", "-Wl,--export-dynamic", "-Wl,--no-entry", "-Wl,--export=__heap_base", \
                      "-std=c17", "-Wl,--initial-memory=10485760", "-Wl,--allow-undefined"
 
-#define SOURCE_FILE "wasm/test.c"
 
-bool build_wasm(void)
+bool build_wasm_component(char* name)
 {
-    nob_log(INFO, "Building test.wasm...");
+    nob_log(INFO, "Building %s...", name);
     
     if (!mkdir_if_not_exists("public")) {
         nob_log(ERROR, "Could not create directory public");
@@ -22,8 +21,8 @@ bool build_wasm(void)
     cmd_append(&cmd, "clang");
     cmd_append(&cmd, WASM_CFLAGS);
     cmd_append(&cmd, WASM_LDFLAGS);
-    cmd_append(&cmd, "-o", "public/test.wasm");
-    cmd_append(&cmd, SOURCE_FILE);
+    cmd_append(&cmd, "-o", temp_sprintf("public/%s.wasm"));
+    cmd_append(&cmd, temp_sprintf("wasm/%s.c", name));
     
     if (!cmd_run_sync(cmd)) {
         nob_log(ERROR, "Failed to build test.wasm");
@@ -39,7 +38,7 @@ int main(int argc, char **argv)
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
     
-    if (!build_wasm()) {
+    if (!build_wasm_component("test")) {
         return 1;
     }
     
