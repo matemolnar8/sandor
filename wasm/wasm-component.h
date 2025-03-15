@@ -32,14 +32,14 @@ typedef struct {
 
 struct Element {
     const char* type;
-    const char* text;
+    char* text;
     Children* children;
     void (*on_click)();
 };
 
-Arena render_result_arena = {0};
-
 void platform_rerender();
+
+Arena render_result_arena = {0};
 
 Children* children() {
     Children* result = arena_alloc(&render_result_arena, sizeof(Children));
@@ -60,7 +60,7 @@ Element* create_element(const char* type, Children* children)
     return result;
 }
 
-Element* create_button(const char* text, void (*callback)())
+Element* create_button(char* text, void (*callback)())
 {
     Element* result = create_element("button", children());
 
@@ -70,12 +70,22 @@ Element* create_button(const char* text, void (*callback)())
     return result;
 }
 
+#define TEXT_CAPACITY 256
 
-Element* create_text_element(const char* type, const char* text)
+Element* create_text_element(const char* type)
 {
     Element* result = create_element(type, NULL);
 
-    result->text = text;
+    result->text = arena_alloc(&render_result_arena, TEXT_CAPACITY);
+
+    return result;
+}
+
+Element* create_text_element_with_text(const char* type, const char* text)
+{
+    Element* result = create_element(type, NULL);
+
+    result->text = arena_strdup(&render_result_arena, text);
 
     return result;
 }
