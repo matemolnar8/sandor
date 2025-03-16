@@ -1,3 +1,6 @@
+#ifndef WASM_COMPONENT_H
+#define WASM_COMPONENT_H
+
 #include <stddef.h>
 #include <stdarg.h>
 #include "macros.h"
@@ -151,3 +154,5 @@ void invoke_on_click(Element* element) {
         platform_rerender();
     }
 }
+
+#endif // WASM_COMPONENT_H
