@@ -1,3 +1,4 @@
+// https://gist.github.com/61131/7a22ac46062ee292c2c8bd6d883d28de
 #ifndef _MACROS_H
 #define _MACROS_H
 
