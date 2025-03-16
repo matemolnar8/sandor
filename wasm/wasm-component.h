@@ -23,6 +23,8 @@ int printf(const char *fmt, ...)
 #define ARENA_BACKEND ARENA_BACKEND_WASM_HEAPBASE
 #include "arena.h"
 
+#define ASSERT(cond) ARENA_ASSERT(cond)
+
 typedef struct Element Element;
 
 typedef struct {
@@ -35,7 +37,8 @@ struct Element {
     const char* type;
     char* text;
     Children* children;
-    void (*on_click)();
+    void (*on_click)(void*);
+    void* on_click_args;
 };
 
 void platform_rerender();
@@ -87,16 +90,18 @@ Element* element(const char* type, Children* children)
     result->text = NULL;
     result->children = children;
     result->on_click = NULL;
+    result->on_click_args = NULL;
 
     return result;
 }
 
-Element* button(char* text, void (*callback)())
+Element* button(char* text, void (*callback)(), void* args)
 {
     Element* result = element("button", children_empty());
 
     result->text = text;
     result->on_click = callback;
+    result->on_click_args = args;
 
     return result;
 }
@@ -133,7 +138,7 @@ Element* render_component_internal() {
 [[clang::export_name("invoke_on_click")]]
 void invoke_on_click(Element* element) {
     if (element->on_click) {
-        element->on_click();
+        element->on_click(element->on_click_args);
         platform_rerender();
     }
 }
