@@ -108,7 +108,7 @@ Element* button(char* text, void (*callback)(), void* args)
 
 #define TEXT_CAPACITY 256
 
-Element* text_element(const char* type)
+Element* text_element_empty(const char* type)
 {
     Element* result = element(type, NULL);
 
@@ -117,7 +117,7 @@ Element* text_element(const char* type)
     return result;
 }
 
-Element* text_element_with_text(const char* type, const char* text)
+Element* text_element(const char* type, const char* text)
 {
     Element* result = element(type, NULL);
 

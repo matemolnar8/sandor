@@ -30,7 +30,7 @@ typedef struct {
 
 void toggle_todo(void* args) {
     ASSERT(args != NULL);
-    
+
     ToggleTodoArgs* toggle_todo_args = (ToggleTodoArgs*)args;
     todos.items[toggle_todo_args->index]->completed = !todos.items[toggle_todo_args->index]->completed;
 }
@@ -39,7 +39,7 @@ Element* todo_list() {
     Element* todo_list = element("ul", children_empty());
 
     for (size_t i = 0; i < todos.count; i++) {
-        arena_da_append(&r_arena, todo_list->children, text_element_with_text(
+        arena_da_append(&r_arena, todo_list->children, text_element(
             "li", 
             arena_sprintf(&r_arena, "%s: %s", todos.items[i]->text, todos.items[i]->completed ? "✅" : "❌")
         ));
@@ -55,7 +55,7 @@ Element* todo_list() {
 Element* render_component()
 {
     return element("div", children(
-        text_element_with_text("h1", "To-Do list"),
+        text_element("h1", "To-Do list"),
         button("Add todo", add_todo, NULL),
         todo_list()
     ));
