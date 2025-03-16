@@ -82,6 +82,15 @@ Children* _children(size_t count, ...) {
     return result;
 }
 
+void add_children(Element* parent, ...) {
+    va_list args;
+    va_start(args, parent);
+    for (Element* child = va_arg(args, Element*); child != NULL; child = va_arg(args, Element*)) {
+        arena_da_append(&r_arena, parent->children, child);
+    }
+    va_end(args);
+};
+
 Element* element(const char* type, Children* children)
 {
     Element* result = arena_alloc(&r_arena, sizeof(Element));

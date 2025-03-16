@@ -39,14 +39,17 @@ Element* todo_list() {
     Element* todo_list = element("ul", children_empty());
 
     for (size_t i = 0; i < todos.count; i++) {
-        arena_da_append(&r_arena, todo_list->children, text_element(
-            "li", 
-            arena_sprintf(&r_arena, "%s: %s", todos.items[i]->text, todos.items[i]->completed ? "✅" : "❌")
-        ));
-
         ToggleTodoArgs* toggle_todo_args = arena_alloc(&r_arena, sizeof(ToggleTodoArgs));
         toggle_todo_args->index = i;
-        arena_da_append(&r_arena, todo_list->children, button("Toggle", toggle_todo, toggle_todo_args));
+
+        add_children(todo_list, 
+            text_element(
+                "li", 
+                arena_sprintf(&r_arena, "%s: %s", todos.items[i]->text, todos.items[i]->completed ? "✅" : "❌")
+            ),
+
+            button("Toggle", toggle_todo, toggle_todo_args)
+        );
     }
 
     return todo_list;
