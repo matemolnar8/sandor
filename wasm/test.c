@@ -13,8 +13,8 @@ Element* render_component()
 
     return element("div", children(
         text_element_with_text("h1", "Hello, world!"),
-        text_element_with_text("h2", arena_sprintf(&render_result_arena, "Count: %d", count)),
-        text_element_with_text("p", arena_sprintf(&render_result_arena, "Render count: %d", render_count)),
+        text_element_with_text("h2", arena_sprintf(&r_arena, "Count: %d", count)),
+        text_element_with_text("p", arena_sprintf(&r_arena, "Render count: %d", render_count)),
         button("Increment", button_callback)
     ));
 }

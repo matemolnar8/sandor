@@ -40,8 +40,9 @@ struct Element {
 
 void platform_rerender();
 
-Arena render_result_arena = {0};
+Arena r_arena = {0};
 
+// Adapted from arena.h using stb_sprintf
 char *arena_sprintf(Arena* a, const char *format, ...)
 {
     va_list args;
@@ -62,7 +63,7 @@ char *arena_sprintf(Arena* a, const char *format, ...)
 #define children_empty() _children(0)
 
 Children* _children(size_t count, ...) {
-    Children* result = arena_alloc(&render_result_arena, sizeof(Children));
+    Children* result = arena_alloc(&r_arena, sizeof(Children));
     result->count = 0;
     result->capacity = 0;
     result->items = NULL;
@@ -71,7 +72,7 @@ Children* _children(size_t count, ...) {
     va_start(args, count);
     for (size_t i = 0; i < count; i++) {
         Element* element = va_arg(args, Element*);
-        arena_da_append(&render_result_arena, result, element);
+        arena_da_append(&r_arena, result, element);
     }
     va_end(args);
 
@@ -80,7 +81,7 @@ Children* _children(size_t count, ...) {
 
 Element* element(const char* type, Children* children)
 {
-    Element* result = arena_alloc(&render_result_arena, sizeof(Element));
+    Element* result = arena_alloc(&r_arena, sizeof(Element));
 
     result->type = type;
     result->text = NULL;
@@ -106,7 +107,7 @@ Element* text_element(const char* type)
 {
     Element* result = element(type, NULL);
 
-    result->text = arena_alloc(&render_result_arena, TEXT_CAPACITY);
+    result->text = arena_alloc(&r_arena, TEXT_CAPACITY);
 
     return result;
 }
@@ -115,7 +116,7 @@ Element* text_element_with_text(const char* type, const char* text)
 {
     Element* result = element(type, NULL);
 
-    result->text = arena_strdup(&render_result_arena, text);
+    result->text = arena_strdup(&r_arena, text);
 
     return result;
 }
@@ -124,7 +125,7 @@ Element* render_component();
 
 [[clang::export_name("render_component")]]
 Element* render_component_internal() {
-    arena_reset(&render_result_arena);
+    arena_reset(&r_arena);
 
     return render_component();
 }

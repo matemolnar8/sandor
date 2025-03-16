@@ -34,9 +34,9 @@ Element* todo_list() {
 
     for (size_t i = 0; i < todos.count; i++) {
         Element* todo_element = text_element("li");
-        todo_element->text = arena_sprintf(&render_result_arena, "%s: %s", todos.items[i]->text, todos.items[i]->completed ? "✅" : "❌");
-        arena_da_append(&render_result_arena, todo_list->children, todo_element);
-        arena_da_append(&render_result_arena, todo_list->children, button("Toggle", toggle_todo));
+        todo_element->text = arena_sprintf(&r_arena, "%s: %s", todos.items[i]->text, todos.items[i]->completed ? "✅" : "❌");
+        arena_da_append(&r_arena, todo_list->children, todo_element);
+        arena_da_append(&r_arena, todo_list->children, button("Toggle", toggle_todo));
     }
 
     return todo_list;
