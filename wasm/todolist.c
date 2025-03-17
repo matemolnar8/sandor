@@ -21,11 +21,12 @@ void add_todo(void* args)
 
     Todo* todo = arena_alloc(&todo_list_arena, sizeof(Todo));
     todo->text = arena_sprintf(&todo_list_arena, "Todo #%d", todos.count + 1);
+    todo->completed = false;
     arena_da_append(&todo_list_arena, &todos, todo);
 }
 
 typedef struct {
-    int index;
+    size_t index;
 } ToggleTodoArgs;
 
 void toggle_todo(void* args) {
@@ -42,10 +43,11 @@ Element* todo_list() {
         ToggleTodoArgs* toggle_todo_args = arena_alloc(&r_arena, sizeof(ToggleTodoArgs));
         toggle_todo_args->index = i;
 
+        Todo* todo = todos.items[i];
         add_children(todo_list, 
             text_element(
                 "li", 
-                arena_sprintf(&r_arena, "%s: %s", todos.items[i]->text, todos.items[i]->completed ? "✅" : "❌")
+                arena_sprintf(&r_arena, "%s: %s", todo->text, todo->completed ? "✅" : "❌")
             ),
 
             button("Toggle", toggle_todo, toggle_todo_args)

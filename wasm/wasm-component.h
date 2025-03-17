@@ -85,11 +85,13 @@ Children* _children(size_t count, ...) {
     return result;
 }
 
-void add_children(Element* parent, ...) {
+#define add_children(parent, ...) _add_children(parent, _NARG(__VA_ARGS__), __VA_ARGS__)
+void _add_children(Element* parent, size_t count, ...) {
     va_list args;
-    va_start(args, parent);
-    for (Element* child = va_arg(args, Element*); child != NULL; child = va_arg(args, Element*)) {
-        arena_da_append(&r_arena, parent->children, child);
+    va_start(args, count);
+    for (size_t i = 0; i < count; i++) {
+        Element* element = va_arg(args, Element*);
+        arena_da_append(&r_arena, parent->children, element);
     }
     va_end(args);
 };
@@ -107,7 +109,7 @@ Element* element(const char* type, Children* children)
     return result;
 }
 
-Element* button(char* text, void (*callback)(), void* args)
+Element* button(char* text, void (*callback)(void*), void* args)
 {
     Element* result = element("button", children_empty());
 
