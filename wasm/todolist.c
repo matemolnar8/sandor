@@ -59,9 +59,12 @@ Element* todo_list() {
 
 Element* render_component()
 {
-    return element("div", children(
-        text_element("h1", "To-Do list"),
-        button("Add todo", add_todo, NULL),
-        todo_list()
-    ));
+    return attributes(
+        element("div", children(
+            text_element("h1", "To-Do list"),
+            button("Add todo", add_todo, NULL),
+            todo_list()
+        )), 
+        "style", "font-family: sans-serif;"
+    );
 }

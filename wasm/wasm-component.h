@@ -36,12 +36,24 @@ typedef struct {
     Element** items;
 } Children;
 
+typedef struct {
+    const char* name;
+    const char* value;
+} Attribute;
+
+typedef struct {
+    size_t count;
+    size_t capacity;
+    Attribute** items;
+} Attributes;
+
 struct Element {
     const char* type;
     char* text;
     Children* children;
     void (*on_click)(void*);
     void* on_click_args;
+    Attributes* attributes;
 };
 
 void platform_rerender();
@@ -96,6 +108,31 @@ void _add_children(Element* parent, size_t count, ...) {
     va_end(args);
 };
 
+#define attributes(element, ...) _attributes(element, _NARG(__VA_ARGS__), __VA_ARGS__)
+Element* _attributes(Element* element, size_t count, ...) {
+    ASSERT(count % 2 == 0);
+
+    element->attributes = arena_alloc(&r_arena, sizeof(Attributes));
+    element->attributes->count = 0;
+    element->attributes->capacity = 0;
+    element->attributes->items = NULL;
+
+    va_list args;
+    va_start(args, count);
+    for (size_t i = 0; i < count / 2; i++) {
+        const char* name = va_arg(args, const char*);
+        const char* value = va_arg(args, const char*);
+        
+        Attribute* attribute = arena_alloc(&r_arena, sizeof(Attribute));
+        attribute->name = arena_strdup(&r_arena, name);
+        attribute->value = arena_strdup(&r_arena, value);
+        arena_da_append(&r_arena, element->attributes, attribute);
+    }
+    va_end(args);
+
+    return element;
+}
+
 Element* element(const char* type, Children* children)
 {
     Element* result = arena_alloc(&r_arena, sizeof(Element));
@@ -105,6 +142,8 @@ Element* element(const char* type, Children* children)
     result->children = children;
     result->on_click = NULL;
     result->on_click_args = NULL;
+    
+    result->attributes = NULL;
 
     return result;
 }

@@ -12,10 +12,13 @@ Element* render_component()
 {
     render_count++;
 
-    return element("div", children(
-        text_element("h1", "Hello, world!"),
-        text_element("h2", arena_sprintf(&r_arena, "Count: %d", count)),
-        text_element("p", arena_sprintf(&r_arena, "Render count: %d", render_count)),
-        button("Increment", button_callback, NULL)
-    ));
+    return attributes(
+        element("div", children(
+            text_element("h1", "Hello, world!"),
+            text_element("h2", arena_sprintf(&r_arena, "Count: %d", count)),
+            text_element("p", arena_sprintf(&r_arena, "Render count: %d", render_count)),
+            button("Increment", button_callback, NULL)
+        )),
+        "style", "font-family: sans-serif;"
+    );
 }

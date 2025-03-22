@@ -15,6 +15,7 @@ export type ResultElement = {
   text?: string;
   children?: ResultElement[];
   onClick?: () => void;
+  attributes?: Record<string, string>;
 };
 
 export class WasmComponent {
@@ -78,6 +79,12 @@ export class WasmComponent {
         element.addEventListener("click", renderResult.onClick);
       }
 
+      if (renderResult.attributes) {
+        for (const [key, value] of Object.entries(renderResult.attributes)) {
+          element.setAttribute(key, value);
+        }
+      }
+
       parentElement.appendChild(element);
     };
 
@@ -113,7 +120,22 @@ export class WasmComponent {
       };
     }
 
-    return { type, text, children, onClick };
+    let attributes: Record<string, string> | undefined;
+    const attributesPtr = dataView.getUint32(address + 20, true);
+    if (attributesPtr !== 0) {
+      const attributesArray = this.readDynamicPointerArray(attributesPtr);
+      attributes = {};
+      for (let i = 0; i < attributesArray.length; i++) {
+        const attributesPtr = attributesArray[i];
+        const keyPtr = this.memoryDataView.getUint32(attributesPtr, true);
+        const valuePtr = this.memoryDataView.getUint32(attributesPtr + 4, true);
+        const key = this.readString(keyPtr);
+        const value = this.readString(valuePtr);
+        attributes[key] = value;
+      }
+    }
+
+    return { type, text, children, onClick, attributes };
   }
 
   readDynamicPointerArray(address: number) {
