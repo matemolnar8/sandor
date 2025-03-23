@@ -6,6 +6,9 @@ typedef struct {
     bool completed;
 } Todo;
 
+_init_struct(Todo);
+#define TODO(...) _init_Todo(struct_wrapper(Todo, __VA_ARGS__))
+
 typedef struct {
     size_t count;
     size_t capacity;
@@ -19,9 +22,11 @@ void add_todo(void* args)
 {
     ASSERT(args == NULL);
 
-    Todo* todo = arena_alloc(&todo_list_arena, sizeof(Todo));
-    todo->text = arena_sprintf(&todo_list_arena, "Todo #%d", todos.count + 1);
-    todo->completed = false;
+    Todo* todo = TODO({
+        .text = arena_sprintf(&todo_list_arena, "Todo #%d", todos.count + 1),
+        .completed = false
+    });
+    
     arena_da_append(&todo_list_arena, &todos, todo);
 }
 

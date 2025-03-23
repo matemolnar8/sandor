@@ -56,9 +56,27 @@ struct Element {
     Attributes* attributes;
 };
 
+#define struct_wrapper(type, ...) (type) __VA_ARGS__
+#define _init_struct(type) \
+    void *_init_##type(type value) { \
+        type *result = arena_alloc(&r_arena, sizeof(type)); \
+        *result = value; \
+        return result; \
+    } 
+
 void platform_rerender();
 
 Arena r_arena = {0};
+
+_init_struct(Element);
+_init_struct(Attribute);
+_init_struct(Children);
+_init_struct(Attributes);
+
+#define ELEMENT(...) _init_Element(struct_wrapper(Element, __VA_ARGS__))
+#define ATTRIBUTE(...) _init_Attribute(struct_wrapper(Attribute, __VA_ARGS__))
+#define CHILDREN(...) _init_Children(struct_wrapper(Children, __VA_ARGS__))
+#define ATTRIBUTES(...) _init_Attributes(struct_wrapper(Attributes, __VA_ARGS__))
 
 // Adapted from arena.h using stb_sprintf
 char *arena_sprintf(Arena* a, const char *format, ...)
@@ -81,10 +99,11 @@ char *arena_sprintf(Arena* a, const char *format, ...)
 #define children_empty() _children(0)
 
 Children* _children(size_t count, ...) {
-    Children* result = arena_alloc(&r_arena, sizeof(Children));
-    result->count = 0;
-    result->capacity = 0;
-    result->items = NULL;
+    Children* result = CHILDREN({
+        .count = 0,
+        .capacity = 0,
+        .items = NULL
+    });
 
     va_list args;
     va_start(args, count);
@@ -112,10 +131,11 @@ void _add_children(Element* parent, size_t count, ...) {
 Element* _attributes(Element* element, size_t count, ...) {
     ASSERT(count % 2 == 0);
 
-    element->attributes = arena_alloc(&r_arena, sizeof(Attributes));
-    element->attributes->count = 0;
-    element->attributes->capacity = 0;
-    element->attributes->items = NULL;
+    element->attributes = ATTRIBUTES({
+        .count = 0,
+        .capacity = 0,
+        .items = NULL
+    });
 
     va_list args;
     va_start(args, count);
@@ -123,9 +143,10 @@ Element* _attributes(Element* element, size_t count, ...) {
         const char* name = va_arg(args, const char*);
         const char* value = va_arg(args, const char*);
         
-        Attribute* attribute = arena_alloc(&r_arena, sizeof(Attribute));
-        attribute->name = arena_strdup(&r_arena, name);
-        attribute->value = arena_strdup(&r_arena, value);
+        Attribute* attribute = ATTRIBUTE({
+            .name = arena_strdup(&r_arena, name),
+            .value = arena_strdup(&r_arena, value)
+        });
         arena_da_append(&r_arena, element->attributes, attribute);
     }
     va_end(args);
@@ -135,15 +156,14 @@ Element* _attributes(Element* element, size_t count, ...) {
 
 Element* element(const char* type, Children* children)
 {
-    Element* result = arena_alloc(&r_arena, sizeof(Element));
-
-    result->type = type;
-    result->text = NULL;
-    result->children = children;
-    result->on_click = NULL;
-    result->on_click_args = NULL;
-    
-    result->attributes = NULL;
+    Element* result = ELEMENT({
+        .type = type,
+        .text = NULL,
+        .children = children,
+        .on_click = NULL,
+        .on_click_args = NULL,
+        .attributes = NULL
+    });
 
     return result;
 }
