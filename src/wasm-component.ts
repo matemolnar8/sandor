@@ -1,4 +1,5 @@
 import { assertAndGet } from "./util/assert-value.js";
+import morphdom from "morphdom";
 
 type WasmInstance = {
   exports: {
@@ -23,6 +24,7 @@ export class WasmComponent {
   #memoryDataView: DataView | undefined;
   wasmPath: string;
   parent: HTMLElement | undefined;
+  instanceId = crypto.randomUUID();
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -62,7 +64,9 @@ export class WasmComponent {
     if (!this.parent) {
       return;
     }
-    this.parent.innerHTML = "";
+
+    const newRootElement = document.createElement("div");
+    newRootElement.setAttribute("data-instance-id", this.instanceId);
 
     const renderElement = (renderResult: ResultElement, parentElement: HTMLElement) => {
       const element = document.createElement(renderResult.type);
@@ -88,7 +92,14 @@ export class WasmComponent {
       parentElement.appendChild(element);
     };
 
-    renderElement(root, this.parent);
+    renderElement(root, newRootElement);
+
+    const existingRootElement = this.parent.querySelector(`[data-instance-id="${this.instanceId}"]`);
+    if (!existingRootElement) {
+      this.parent.appendChild(newRootElement);
+    } else {
+      morphdom(existingRootElement, newRootElement);
+    }
   }
 
   readElement(address: number): ResultElement {
