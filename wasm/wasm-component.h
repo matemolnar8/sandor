@@ -157,7 +157,7 @@ Element* _attributes(Element* element, size_t count, ...) {
 Element* element(const char* type, Children* children)
 {
     Element* result = ELEMENT({
-        .type = type,
+        .type = arena_strdup(&r_arena, type),
         .text = NULL,
         .children = children,
         .on_click = NULL,
