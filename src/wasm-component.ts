@@ -17,6 +17,7 @@ export type ResultElement = {
   children?: ResultElement[];
   onClick?: () => void;
   attributes?: Record<string, string>;
+  id: number;
 };
 
 export class WasmComponent {
@@ -127,7 +128,7 @@ export class WasmComponent {
     const onClickPtr = dataView.getUint32(address + 12, true);
     if (onClickPtr !== 0) {
       onClick = () => {
-        this.instance.exports.invoke_on_click(address);
+        this.instance.exports.invoke_on_click(id);
       };
     }
 
@@ -146,7 +147,9 @@ export class WasmComponent {
       }
     }
 
-    return { type, text, children, onClick, attributes };
+    const id = dataView.getUint32(address + 24, true);
+
+    return { type, text, children, onClick, attributes, id };
   }
 
   readDynamicPointerArray(address: number) {

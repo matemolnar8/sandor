@@ -54,7 +54,14 @@ struct Element {
     void (*on_click)(void*);
     void* on_click_args;
     Attributes* attributes;
+    size_t index;
 };
+
+typedef struct {
+    size_t count;
+    size_t capacity;
+    Element** items;
+} Elements;
 
 #define struct_wrapper(type, ...) (type) __VA_ARGS__
 #define _init_struct(type) \
@@ -67,6 +74,8 @@ struct Element {
 void platform_rerender();
 
 Arena r_arena = {0};
+Elements r_elements = {0};
+#define ELEMENT_INDEX_OFFSET 69
 
 _init_struct(Element);
 _init_struct(Attribute);
@@ -162,8 +171,12 @@ Element* element(const char* type, Children* children)
         .children = children,
         .on_click = NULL,
         .on_click_args = NULL,
-        .attributes = NULL
+        .attributes = NULL,
+        .index = 0
     });
+
+    result->index = r_elements.count + ELEMENT_INDEX_OFFSET;
+    arena_da_append(&r_arena, &r_elements, result);
 
     return result;
 }
@@ -204,12 +217,17 @@ Element* render_component();
 [[clang::export_name("render_component")]]
 Element* render_component_internal() {
     arena_reset(&r_arena);
+    r_elements.count = 0;
+    r_elements.capacity = 0;
 
     return render_component();
 }
 
 [[clang::export_name("invoke_on_click")]]
-void invoke_on_click(Element* element) {
+void invoke_on_click(size_t element_index) {
+    ASSERT(element_index - ELEMENT_INDEX_OFFSET < r_elements.count);
+    Element* element = r_elements.items[element_index - ELEMENT_INDEX_OFFSET];
+
     if (element->on_click) {
         element->on_click(element->on_click_args);
         platform_rerender();
