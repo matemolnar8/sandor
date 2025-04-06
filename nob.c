@@ -21,7 +21,7 @@ bool build_wasm_component(char* name)
     cmd_append(&cmd, "clang");
     cmd_append(&cmd, WASM_CFLAGS);
     cmd_append(&cmd, WASM_LDFLAGS);
-    cmd_append(&cmd, "-o", temp_sprintf("public/%s.wasm"));
+    cmd_append(&cmd, "-o", temp_sprintf("public/%s.wasm", name));
     cmd_append(&cmd, temp_sprintf("wasm/%s.c", name));
     
     if (!cmd_run_sync(cmd)) {
