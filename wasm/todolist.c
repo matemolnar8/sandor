@@ -47,14 +47,11 @@ Element* todo_list() {
         toggle_todo_args->index = i;
 
         Todo* todo = todos.items[i];
-        add_children(todo_list, 
-            text_element(
-                "li", 
-                arena_sprintf(&r_arena, "%s: %s", todo->text, todo->completed ? "✅" : "❌")
-            ),
-
-            button("Toggle", toggle_todo, toggle_todo_args)
-        );
+        Element* li_item = element("li", children(
+            text_element("span", arena_sprintf(&r_arena, "%s: %s", todo->text, todo->completed ? "✅" : "❌")),
+            class(button("Toggle", toggle_todo, toggle_todo_args), "btn ml-2")
+        ));
+        add_children(todo_list, li_item);
     }
 
     return todo_list;
@@ -62,12 +59,12 @@ Element* todo_list() {
 
 Element* render_component()
 {
-    return attributes(
+    return class(
         element("div", children(
-            text_element("h1", "To-Do list"),
-            button("Add todo", add_todo, NULL),
+            class(text_element("h1", "To-Do list"), "text-3xl font-bold"),
+            class(button("Add todo", add_todo, NULL), "btn btn-primary"),
             todo_list()
-        )), 
-        "style", "font-family: sans-serif;"
+        )),
+        "flex flex-col items-center p-6 gap-4 h-full"
     );
 }

@@ -12,13 +12,16 @@ Element* render_component()
 {
     render_count++;
 
-    return attributes(
+    return class(
         element("div", children(
-            text_element("h1", "Hello, world!"),
-            text_element("h2", arena_sprintf(&r_arena, "Count: %d", count)),
+            class(text_element("h1", "Hello, world!"), "text-3xl font-bold"),
+            class(text_element("p", arena_sprintf(&r_arena, "Count: %d", count)), "text-xl"),
             text_element("p", arena_sprintf(&r_arena, "Render count: %d", render_count)),
-            button("Increment", button_callback, NULL)
+            class(
+                button("Increment", button_callback, NULL),
+                "btn rounded-full"
+            )
         )),
-        "style", "font-family: sans-serif;"
+        "flex-1 flex flex-col items-center gap-4 p-6"
     );
 }

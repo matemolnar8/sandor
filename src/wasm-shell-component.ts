@@ -1,5 +1,6 @@
 import { WasmComponent } from "./wasm-component";
 import { assertAndGet } from "./util/assert-value";
+import stylesheet from "../style.css?inline";
 
 class WasmShellComponent extends HTMLElement {
   wasmComponent: WasmComponent | undefined;
@@ -7,10 +8,13 @@ class WasmShellComponent extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(stylesheet);
+
+    this.shadowRoot?.adoptedStyleSheets.push(sheet);
 
     this.shadowRoot.innerHTML = `
-      <div id="root"></div>
-      <button id="debugRerender">Debug - Rerender</button>      
+      <div id="root" class="h-full"></div>
     `;
   }
 

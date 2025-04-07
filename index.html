@@ -4,46 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-sizing: content-box;
-      }
-      
-      html {
-        height: 100%;
-        width: 100%;
-      }
-
-      body {
-        height: calc(100% - 20px);
-        width: 100%;
-        padding: 10px;
-      }
-
-      .container {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: stretch;
-        gap: 10px;
-        height: 100%;
-        width: 100%;
-      }
-
-      wasm-test-component {
-        border: 1px solid black;
-      }
-    </style>
+    <link href="./style.css" rel="stylesheet">
   </head>
   <body>
     <script type="module" src="./src/wasm-shell-component.ts"></script>
-    <div class="container">
+    <div class="h-screen flex flex-row">
       <wasm-shell-component name="test" style="flex: 1"></wasm-shell-component>
       <wasm-shell-component name="todolist" style="flex: 1"></wasm-shell-component>
     </div>

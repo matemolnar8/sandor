@@ -137,6 +137,7 @@ void _add_children(Element* parent, size_t count, ...) {
 };
 
 #define attributes(element, ...) _attributes(element, _NARG(__VA_ARGS__), __VA_ARGS__)
+#define class(element, value) _attributes(element, 2, "class", value)
 Element* _attributes(Element* element, size_t count, ...) {
     ASSERT(count % 2 == 0);
 

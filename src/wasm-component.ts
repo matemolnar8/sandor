@@ -68,6 +68,7 @@ export class WasmComponent {
 
     const newRootElement = document.createElement("div");
     newRootElement.setAttribute("data-instance-id", this.instanceId);
+    newRootElement.setAttribute("class", "h-full flex flex-col");
 
     const renderElement = (renderResult: ResultElement, parentElement: HTMLElement) => {
       const element = document.createElement(renderResult.type);
@@ -94,6 +95,14 @@ export class WasmComponent {
     };
 
     renderElement(root, newRootElement);
+
+    const debugRerenderButton = document.createElement("button");
+    debugRerenderButton.classList.add("btn", "rounded-full");
+    debugRerenderButton.textContent = "Debug rerender";
+    debugRerenderButton.addEventListener("click", () => {
+      this.render();
+    });
+    newRootElement.appendChild(debugRerenderButton);
 
     const existingRootElement = this.parent.querySelector(`[data-instance-id="${this.instanceId}"]`);
     if (!existingRootElement) {
