@@ -136,6 +136,7 @@ export class WasmComponent {
     let onClick: (() => void) | undefined;
     const onClickPtr = dataView.getUint32(address + 12, true);
     if (onClickPtr !== 0) {
+      const id = dataView.getUint32(address + 24, true);
       onClick = () => {
         this.instance.exports.invoke_on_click(id);
       };

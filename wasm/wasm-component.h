@@ -75,7 +75,6 @@ void platform_rerender();
 
 Arena r_arena = {0};
 Elements r_elements = {0};
-#define ELEMENT_INDEX_OFFSET 69
 
 _init_struct(Element);
 _init_struct(Attribute);
@@ -176,7 +175,7 @@ Element* element(const char* type, Children* children)
         .index = 0
     });
 
-    result->index = r_elements.count + ELEMENT_INDEX_OFFSET;
+    result->index = r_elements.count;
     arena_da_append(&r_arena, &r_elements, result);
 
     return result;
@@ -226,8 +225,8 @@ Element* render_component_internal() {
 
 [[clang::export_name("invoke_on_click")]]
 void invoke_on_click(size_t element_index) {
-    ASSERT(element_index - ELEMENT_INDEX_OFFSET < r_elements.count);
-    Element* element = r_elements.items[element_index - ELEMENT_INDEX_OFFSET];
+    ASSERT(r_elements.count > 0 && element_index < r_elements.count);
+    Element* element = r_elements.items[element_index];
 
     if (element->on_click) {
         element->on_click(element->on_click_args);
