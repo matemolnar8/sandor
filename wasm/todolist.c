@@ -15,15 +15,35 @@ typedef struct {
 Todos todos = {0};
 Arena todo_list_arena = {0};
 
+bool has_error = false;
+char input_text[INPUT_BUFFER_CAPACITY] = "\0";
+void on_change(const char* text) {
+    copy(text, input_text, INPUT_BUFFER_CAPACITY);
+
+    if (input_text[0] == '\0') {
+        has_error = true;
+    } else {
+        has_error = false;
+    }
+    platform_rerender();
+}
+
 void add_todo(void* args)
 {
     ASSERT(args == NULL);
 
+    if(input_text[0] == '\0') {
+        has_error = true;
+        return;
+    }
+
     Todo* todo = arena_alloc(&todo_list_arena, sizeof(Todo));
     *todo = (Todo) {
-        .text = arena_sprintf(&todo_list_arena, "Todo #%d", todos.count + 1),
+        .text = arena_sprintf(&todo_list_arena, input_text, todos.count + 1),
         .completed = false
     };
+
+    *input_text = '\0';
     
     arena_da_append(&todo_list_arena, &todos, todo);
 }
@@ -59,9 +79,20 @@ Element* todo_list() {
 
 Element* render_component()
 {
+    Element* input = attributes(
+        element("input", children_empty()),
+        "type", "text",
+        "placeholder", "Enter a new todo",
+        "class", has_error ? "input input-error" : "input",
+        "value", input_text
+    );
+
+    input->on_change = on_change;
+
     return class(
         element("div", children(
             class(text_element("h1", "To-Do list"), "text-3xl font-bold"),
+            input,
             class(button("Add todo", add_todo, NULL), "btn btn-primary"),
             todo_list()
         )),

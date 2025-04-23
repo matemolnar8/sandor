@@ -5,7 +5,9 @@ type WasmInstance = {
   exports: {
     memory: WebAssembly.Memory;
     render_component: () => number;
-    invoke_on_click: (elementPtr: number) => void;
+    invoke_on_click: (elementIndex: number) => void;
+    invoke_on_change: (elementIndex: number, valuePtr: number) => void;
+    get_input_buffer: () => number;
   };
 };
 
@@ -16,6 +18,7 @@ export type ResultElement = {
   text?: string;
   children?: ResultElement[];
   onClick?: () => void;
+  onChange?: (value: string) => void;
   attributes?: Record<string, string>;
   id: number;
 };
@@ -85,6 +88,14 @@ export class WasmComponent {
         element.addEventListener("click", renderResult.onClick);
       }
 
+      if (renderResult.onChange) {
+        const onChange = renderResult.onChange;
+        element.addEventListener("change", (event) => {
+          const target = event.target as HTMLInputElement;
+          onChange(target.value);
+        });
+      }
+
       if (renderResult.attributes) {
         for (const [key, value] of Object.entries(renderResult.attributes)) {
           element.setAttribute(key, value);
@@ -117,6 +128,7 @@ export class WasmComponent {
 
     const typePtr = dataView.getUint32(address, true);
     const type = this.readString(typePtr);
+    const id = dataView.getUint32(address + 24, true);
 
     let text: string | undefined;
     const textPtr = dataView.getUint32(address + 4, true);
@@ -136,7 +148,6 @@ export class WasmComponent {
     let onClick: (() => void) | undefined;
     const onClickPtr = dataView.getUint32(address + 12, true);
     if (onClickPtr !== 0) {
-      const id = dataView.getUint32(address + 24, true);
       onClick = () => {
         this.instance.exports.invoke_on_click(id);
       };
@@ -157,9 +168,17 @@ export class WasmComponent {
       }
     }
 
-    const id = dataView.getUint32(address + 24, true);
+    let onChange: ((value: string) => void) | undefined;
+    const onChangePtr = dataView.getUint32(address + 28, true);
+    if (onChangePtr !== 0) {
+      const bufferPtr = this.instance.exports.get_input_buffer();
+      onChange = (value: string) => {
+        const valuePtr = this.writeString(value, bufferPtr);
+        this.instance.exports.invoke_on_change(id, valuePtr);
+      };
+    }
 
-    return { type, text, children, onClick, attributes, id };
+    return { type, text, children, onClick, onChange, attributes, id };
   }
 
   readDynamicPointerArray(address: number) {
@@ -183,5 +202,18 @@ export class WasmComponent {
       stringBytes.push(byte);
     }
     return decoder.decode(new Uint8Array(stringBytes));
+  }
+
+  writeString(value: string, bufferPtr: number) {
+    const bytes = new TextEncoder().encode(value);
+    const dataView = new DataView(this.instance.exports.memory.buffer);
+
+    for (let i = 0; i < bytes.length; i++) {
+      dataView.setUint8(bufferPtr + i, bytes[i]);
+    }
+
+    dataView.setUint8(bufferPtr + bytes.length, 0);
+
+    return bufferPtr;
   }
 }

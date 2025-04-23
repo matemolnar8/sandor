@@ -28,6 +28,18 @@ int printf(const char *fmt, ...)
 
 #define ASSERT(cond) ARENA_ASSERT(cond)
 
+void copy(const char *src, char *dst, size_t max_len) {
+    size_t i = 0;
+
+    while (src[i] != '\0') {
+        ASSERT(i < max_len);
+        dst[i] = src[i];  
+        i++;
+    }
+
+    dst[i] = '\0';
+}
+
 typedef struct Element Element;
 
 typedef struct {
@@ -55,6 +67,7 @@ struct Element {
     void* on_click_args;
     Attributes* attributes;
     size_t index;
+    void (*on_change)(const char*);
 };
 
 typedef struct {
@@ -172,7 +185,8 @@ Element* element(const char* type, Children* children)
         .on_click = NULL,
         .on_click_args = NULL,
         .attributes = NULL,
-        .index = 0
+        .index = 0,
+        .on_change = NULL
     });
 
     result->index = r_elements.count;
@@ -232,6 +246,24 @@ void invoke_on_click(size_t element_index) {
         element->on_click(element->on_click_args);
         platform_rerender();
     }
+}
+
+[[clang::export_name("invoke_on_change")]]
+void invoke_on_change(size_t element_index, const char* value) {
+    ASSERT(r_elements.count > 0 && element_index < r_elements.count);
+    Element* element = r_elements.items[element_index];
+
+    if (element->on_change) {
+        element->on_change(value);
+        platform_rerender();
+    }
+}
+
+Arena input_arena = {0};
+#define INPUT_BUFFER_CAPACITY 4096
+[[clang::export_name("get_input_buffer")]]
+void* get_input_buffer() {
+    return arena_alloc(&input_arena, INPUT_BUFFER_CAPACITY);
 }
 
 #endif // WASM_COMPONENT_H
