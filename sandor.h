@@ -19,8 +19,8 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef WASM_COMPONENT_H
-#define WASM_COMPONENT_H
+#ifndef SANDOR_H
+#define SANDOR_H
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -28,9 +28,10 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
 
+void platform_write(void *buffer, size_t len);
+
 #define WRITE_BUFFER_CAPACITY 4096
 char write_buffer[WRITE_BUFFER_CAPACITY];
-void platform_write(void *buffer, size_t len);
 int printf(const char *fmt, ...)
 {
     va_list args;
@@ -41,13 +42,13 @@ int printf(const char *fmt, ...)
     return n;
 }
 
+#define ASSERT(cond) (!(cond) ? printf("%s:%d: %s: Assertion `%s' failed.", __FILE__, __LINE__, __func__, #cond), __builtin_trap() : 0)
+
+#define ARENA_ASSERT(cond) ASSERT(cond)
 #define ARENA_IMPLEMENTATION
 #define ARENA_NOSTDIO
-#define ARENA_ASSERT(cond) (!(cond) ? printf("%s:%d: %s: Assertion `%s' failed.", __FILE__, __LINE__, __func__, #cond), __builtin_trap() : 0)
 #define ARENA_BACKEND ARENA_BACKEND_WASM_HEAPBASE
 #include "arena.h"
-
-#define ASSERT(cond) ARENA_ASSERT(cond)
 
 void copy(const char *src, char *dst, size_t max_len) {
     size_t i = 0;
@@ -287,4 +288,4 @@ void* get_input_buffer() {
     return arena_alloc(&input_arena, INPUT_BUFFER_CAPACITY);
 }
 
-#endif // WASM_COMPONENT_H
+#endif // SANDOR_H
