@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include "wasm-component.h"
+#include "sandor.h"
 
 typedef struct {
     char* text;

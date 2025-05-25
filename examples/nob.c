@@ -3,7 +3,9 @@
 #define NOB_EXPERIMENTAL_DELETE_OLD
 #include "nob.h"
 
-#define WASM_CFLAGS  "-std=c23", "-Wall", "-Werror", "-mbulk-memory", "--target=wasm32", "-nostdlib", "-Os", "-g"
+#define WASM_CFLAGS  "-I..", "-I../lib", "-std=c23", "-Wall", "-Werror", "-Os", "-g", \
+                     "-mbulk-memory", "--target=wasm32", "-nostdlib"
+
 #define WASM_LDFLAGS "-Wl,--export-dynamic", "-Wl,--no-entry", "-Wl,--export=__heap_base", \
                      "-Wl,--initial-memory=10485760", "-Wl,--allow-undefined"
 
@@ -17,19 +19,21 @@ bool build_wasm_component(char* name)
         return false;
     }
     
+    char* output_path = temp_sprintf("public/%s.wasm", name);
+
     Cmd cmd = {0};
     cmd_append(&cmd, "clang");
     cmd_append(&cmd, WASM_CFLAGS);
     cmd_append(&cmd, WASM_LDFLAGS);
-    cmd_append(&cmd, "-o", temp_sprintf("public/%s.wasm", name));
-    cmd_append(&cmd, temp_sprintf("wasm/%s.c", name));
+    cmd_append(&cmd, "-o", output_path);
+    cmd_append(&cmd, temp_sprintf("%s.c", name));
     
     if (!cmd_run_sync(cmd)) {
-        nob_log(ERROR, "Failed to build test.wasm");
+        nob_log(ERROR, "Failed to build %s", output_path);
         return false;
     }
     
-    nob_log(INFO, "Successfully built public/test.wasm");
+    nob_log(INFO, "Successfully built %s", output_path);
     return true;
 }
 

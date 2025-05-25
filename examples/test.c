@@ -1,4 +1,4 @@
-#include "wasm-component.h"
+#include "sandor.h"
 
 int render_count = 0;
 int count = 0;
