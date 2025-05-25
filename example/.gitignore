@@ -1,0 +1,10 @@
+# NPM and build output
+node_modules
+dist
+
+# nob build system binary
+nob
+nob.old
+
+# Wasm binaries
+*.wasm
