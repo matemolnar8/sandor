@@ -10,7 +10,7 @@
                      "-Wl,--initial-memory=10485760", "-Wl,--allow-undefined"
 
 
-bool build_wasm_component(char* name)
+bool build_sandor_app(char* name)
 {
     nob_log(INFO, "Building %s...", name);
     
@@ -26,7 +26,7 @@ bool build_wasm_component(char* name)
     cmd_append(&cmd, WASM_CFLAGS);
     cmd_append(&cmd, WASM_LDFLAGS);
     cmd_append(&cmd, "-o", output_path);
-    cmd_append(&cmd, temp_sprintf("%s.c", name));
+    cmd_append(&cmd, temp_sprintf("sandor-apps/%s.c", name));
     
     if (!cmd_run_sync(cmd)) {
         nob_log(ERROR, "Failed to build %s", output_path);
@@ -42,11 +42,11 @@ int main(int argc, char **argv)
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
     
-    if (!build_wasm_component("test")) {
+    if (!build_sandor_app("test")) {
         return 1;
     }
 
-    if (!build_wasm_component("todolist")) {
+    if (!build_sandor_app("todolist")) {
         return 1;
     }
     
