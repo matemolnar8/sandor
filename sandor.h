@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include "macros.h"
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
@@ -286,6 +287,23 @@ Arena input_arena = {0};
 [[clang::export_name("get_input_buffer")]]
 void* get_input_buffer() {
     return arena_alloc(&input_arena, INPUT_BUFFER_CAPACITY);
+}
+
+// Export Element struct layout as a packed array of offsets
+[[clang::export_name("get_element_layout")]]
+const size_t* get_element_layout() {
+    static const size_t layout[] = {
+        offsetof(Element, type),
+        offsetof(Element, text),
+        offsetof(Element, children),
+        offsetof(Element, on_click),
+        offsetof(Element, on_click_args),
+        offsetof(Element, attributes),
+        offsetof(Element, index),
+        offsetof(Element, on_change),
+        sizeof(Element)
+    };
+    return layout;
 }
 
 #endif // SANDOR_H

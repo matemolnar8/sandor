@@ -8,6 +8,7 @@ type WasmInstance = {
     invoke_on_click: (elementIndex: number) => void;
     invoke_on_change: (elementIndex: number, valuePtr: number) => void;
     get_input_buffer: () => number;
+    get_element_layout: () => number;
   };
 };
 
@@ -26,6 +27,15 @@ export type ResultElement = {
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
   #memoryDataView: DataView | undefined;
+  #elementOffsets: {
+    type: number;
+    text: number;
+    children: number;
+    onClick: number;
+    attributes: number;
+    index: number;
+    onChange: number;
+  } | undefined;
   wasmPath: string;
   parent: HTMLElement | undefined;
   instanceId = crypto.randomUUID();
@@ -40,6 +50,10 @@ export class WasmComponent {
 
   get memoryDataView() {
     return assertAndGet(this.#memoryDataView, "Memory data view not found");
+  }
+
+  get elementOffsets() {
+    return assertAndGet(this.#elementOffsets, "Element offsets not found");
   }
 
   async init(parent: HTMLElement) {
@@ -59,6 +73,19 @@ export class WasmComponent {
     ).instance as WasmInstance;
 
     this.#memoryDataView = new DataView(new Uint8Array(this.instance.exports.memory.buffer).buffer);
+
+    const layoutPtr = this.instance.exports.get_element_layout();
+    const layoutView = new DataView(this.instance.exports.memory.buffer);    
+    const sizeOfSizeT = 4;
+    this.#elementOffsets = {
+      type: layoutView.getUint32(layoutPtr + 0 * sizeOfSizeT, true),
+      text: layoutView.getUint32(layoutPtr + 1 * sizeOfSizeT, true),
+      children: layoutView.getUint32(layoutPtr + 2 * sizeOfSizeT, true),
+      onClick: layoutView.getUint32(layoutPtr + 3 * sizeOfSizeT, true),
+      attributes: layoutView.getUint32(layoutPtr + 5 * sizeOfSizeT, true), // Skip on_click_args at index 4
+      index: layoutView.getUint32(layoutPtr + 6 * sizeOfSizeT, true),
+      onChange: layoutView.getUint32(layoutPtr + 7 * sizeOfSizeT, true),
+    };
   }
 
   render() {
@@ -125,13 +152,14 @@ export class WasmComponent {
 
   readElement(address: number): ResultElement {
     const dataView = new DataView(this.instance.exports.memory.buffer);
+    const offsets = this.elementOffsets;
 
-    const typePtr = dataView.getUint32(address, true);
+    const typePtr = dataView.getUint32(address + offsets.type, true);
     const type = this.readString(typePtr);
-    const id = dataView.getUint32(address + 24, true);
+    const id = dataView.getUint32(address + offsets.index, true);
 
     let text: string | undefined;
-    const textPtr = dataView.getUint32(address + 4, true);
+    const textPtr = dataView.getUint32(address + offsets.text, true);
     if (textPtr !== 0) {
       text = this.readString(textPtr);
     } else {
@@ -139,14 +167,14 @@ export class WasmComponent {
     }
 
     let children: ResultElement[] | undefined;
-    const childrenPtr = dataView.getUint32(address + 8, true);
+    const childrenPtr = dataView.getUint32(address + offsets.children, true);
     if (childrenPtr !== 0) {
       const childrenArray = this.readDynamicPointerArray(childrenPtr);
       children = childrenArray.map((childAddr) => this.readElement(childAddr));
     }
 
     let onClick: (() => void) | undefined;
-    const onClickPtr = dataView.getUint32(address + 12, true);
+    const onClickPtr = dataView.getUint32(address + offsets.onClick, true);
     if (onClickPtr !== 0) {
       onClick = () => {
         this.instance.exports.invoke_on_click(id);
@@ -154,7 +182,7 @@ export class WasmComponent {
     }
 
     let attributes: Record<string, string> | undefined;
-    const attributesPtr = dataView.getUint32(address + 20, true);
+    const attributesPtr = dataView.getUint32(address + offsets.attributes, true);
     if (attributesPtr !== 0) {
       const attributesArray = this.readDynamicPointerArray(attributesPtr);
       attributes = {};
@@ -169,7 +197,7 @@ export class WasmComponent {
     }
 
     let onChange: ((value: string) => void) | undefined;
-    const onChangePtr = dataView.getUint32(address + 28, true);
+    const onChangePtr = dataView.getUint32(address + offsets.onChange, true);
     if (onChangePtr !== 0) {
       const bufferPtr = this.instance.exports.get_input_buffer();
       onChange = (value: string) => {
