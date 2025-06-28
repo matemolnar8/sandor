@@ -82,15 +82,41 @@ typedef struct {
     Attribute** items;
 } Attributes;
 
-struct Element {
-    const char* type;
-    char* text;
-    Children* children;
+typedef enum {
+    ELEMENT_GENERIC = 0,
+    ELEMENT_BUTTON = 1,
+    ELEMENT_INPUT = 2,
+} ElementType;
+
+typedef struct {
+    const char* tag;
+} GenericElement;
+
+typedef struct {
     void (*on_click)(void*);
     void* on_click_args;
-    Attributes* attributes;
-    size_t index;
+} ButtonElement;
+
+typedef struct {
+    char* placeholder;
     void (*on_change)(const char*);
+} InputElement;
+
+struct Element {
+    ElementType type;
+    size_t index;
+    
+    // Common properties for all elements
+    char* text;
+    Children* children;
+    Attributes* attributes;
+    
+    // Type-specific data
+    union {
+        GenericElement generic;
+        ButtonElement button;
+        InputElement input;
+    };
 };
 
 typedef struct {
@@ -199,17 +225,17 @@ Element* _attributes(Element* element, size_t count, ...) {
     return element;
 }
 
-Element* element(const char* type, Children* children)
+Element* element(const char* tag, Children* children)
 {
     Element* result = ELEMENT({
-        .type = arena_strdup(&r_arena, type),
+        .type = ELEMENT_GENERIC,
+        .index = 0,
         .text = NULL,
         .children = children,
-        .on_click = NULL,
-        .on_click_args = NULL,
         .attributes = NULL,
-        .index = 0,
-        .on_change = NULL
+        .generic = {
+            .tag = arena_strdup(&r_arena, tag)
+        }
     });
 
     result->index = r_elements.count;
@@ -220,32 +246,57 @@ Element* element(const char* type, Children* children)
 
 Element* button(char* text, void (*callback)(void*), void* args)
 {
-    Element* result = element("button", children_empty());
+    Element* result = ELEMENT({
+        .type = ELEMENT_BUTTON,
+        .index = 0,
+        .text = text,
+        .children = children_empty(),
+        .attributes = NULL,
+        .button = {
+            .on_click = callback,
+            .on_click_args = args
+        }
+    });
 
-    result->text = text;
-    result->on_click = callback;
-    result->on_click_args = args;
+    result->index = r_elements.count;
+    arena_da_append(&r_arena, &r_elements, result);
+
+    return result;
+}
+
+Element* input(const char* placeholder, void (*on_change)(const char*))
+{
+    Element* result = ELEMENT({
+        .type = ELEMENT_INPUT,
+        .index = 0,
+        .text = NULL,
+        .children = NULL,
+        .attributes = NULL,
+        .input = {
+            .placeholder = arena_strdup(&r_arena, placeholder),
+            .on_change = on_change
+        }
+    });
+
+    result->index = r_elements.count;
+    arena_da_append(&r_arena, &r_elements, result);
 
     return result;
 }
 
 #define TEXT_CAPACITY 256
 
-Element* text_element_empty(const char* type)
+Element* text_element_empty(const char* tag)
 {
-    Element* result = element(type, NULL);
-
+    Element* result = element(tag, NULL);
     result->text = arena_alloc(&r_arena, TEXT_CAPACITY);
-
     return result;
 }
 
-Element* text_element(const char* type, const char* text)
+Element* text_element(const char* tag, const char* text)
 {
-    Element* result = element(type, NULL);
-
+    Element* result = element(tag, NULL);
     result->text = arena_strdup(&r_arena, text);
-
     return result;
 }
 
@@ -265,8 +316,8 @@ void invoke_on_click(size_t element_index) {
     ASSERT(r_elements.count > 0 && element_index < r_elements.count);
     Element* element = r_elements.items[element_index];
 
-    if (element->on_click) {
-        element->on_click(element->on_click_args);
+    if (element->type == ELEMENT_BUTTON && element->button.on_click) {
+        element->button.on_click(element->button.on_click_args);
         platform_rerender();
     }
 }
@@ -276,8 +327,8 @@ void invoke_on_change(size_t element_index, const char* value) {
     ASSERT(r_elements.count > 0 && element_index < r_elements.count);
     Element* element = r_elements.items[element_index];
 
-    if (element->on_change) {
-        element->on_change(value);
+    if (element->type == ELEMENT_INPUT && element->input.on_change) {
+        element->input.on_change(value);
         platform_rerender();
     }
 }
@@ -293,15 +344,27 @@ void* get_input_buffer() {
 [[clang::export_name("get_element_layout")]]
 const size_t* get_element_layout() {
     static const size_t layout[] = {
-        offsetof(Element, type),
-        offsetof(Element, text),
-        offsetof(Element, children),
-        offsetof(Element, on_click),
-        offsetof(Element, on_click_args),
-        offsetof(Element, attributes),
-        offsetof(Element, index),
-        offsetof(Element, on_change),
-        sizeof(Element)
+        offsetof(Element, type),        // 0: element type (enum)
+        offsetof(Element, index),       // 1: element index
+        offsetof(Element, text),        // 2: common text field
+        offsetof(Element, children),    // 3: common children field
+        offsetof(Element, attributes),  // 4: common attributes field
+        
+        // Union offset
+        offsetof(Element, generic),     // 5: union offset
+        
+        // Generic element offsets (relative to union start)
+        offsetof(GenericElement, tag),  // 6
+        
+        // Button element offsets (relative to union start)
+        offsetof(ButtonElement, on_click),     // 7
+        offsetof(ButtonElement, on_click_args), // 8
+        
+        // Input element offsets (relative to union start)
+        offsetof(InputElement, placeholder),   // 9
+        offsetof(InputElement, on_change),     // 10
+        
+        sizeof(Element)                        // 11: total element size
     };
     return layout;
 }

@@ -79,20 +79,15 @@ Element* todo_list() {
 
 Element* render_component()
 {
-    Element* input = attributes(
-        element("input", children_empty()),
-        "type", "text",
-        "placeholder", "Enter a new todo",
-        "class", has_error ? "input input-error" : "input",
-        "value", input_text
+    Element* input_element = attributes(
+        input("Enter a new todo", on_change),
+        "class", has_error ? "input input-error" : "input"
     );
-
-    input->on_change = on_change;
 
     return class(
         element("div", children(
             class(text_element("h1", "To-Do list"), "text-3xl font-bold"),
-            input,
+            input_element,
             class(button("Add todo", add_todo, NULL), "btn btn-primary"),
             todo_list()
         )),
