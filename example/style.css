@@ -1,2 +1,6 @@
 @import 'tailwindcss';
 @plugin "daisyui";
+
+wasm-shell-component {
+  display: block;
+}

@@ -3,14 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link href="./style.css" rel="stylesheet">
+    <title>Sandor WASM Examples</title>
+    <link href="./style.css" rel="stylesheet" />
   </head>
-  <body>
+  <body class="min-h-screen flex flex-col bg-base-100">
     <script type="module" src="./src/wasm-shell-component.ts"></script>
-    <div class="h-screen flex flex-row">
-      <wasm-shell-component name="test" style="flex: 1"></wasm-shell-component>
-      <wasm-shell-component name="todolist" style="flex: 1"></wasm-shell-component>
-    </div>
+    <script type="module" src="./src/app-switcher.ts"></script>
+
+    <header class="navbar bg-base-200 shadow-lg">
+      <div class="navbar-start">
+        <h1 class="text-xl font-bold font-mono text-primary">sandor.h</h1>
+      </div>
+      <div class="navbar-end">
+        <select
+          class="select select-bordered select-primary w-64 hover:-translate-y-px transition-transform duration-200"
+          id="app-selector"
+        ></select>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <div id="app-container" class="w-full h-full transition-all duration-300 ease-in-out"></div>
+    </main>
   </body>
 </html>
