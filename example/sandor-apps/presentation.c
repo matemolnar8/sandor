@@ -21,7 +21,7 @@ Slide get_slide(size_t slide_index) {
         case 0: // Title slide
             return (Slide) {
                 .title = "🚀 Welcome to Sandor",
-                .background_class = "bg-gradient-to-br from-primary to-secondary",
+                .background_class = "bg-gradient-to-br from-primary/20 to-secondary/20",
                 .content = class(
                     element("div", children(
                         text_element("p", "A modern C framework for building web applications with WebAssembly"),
@@ -34,7 +34,7 @@ Slide get_slide(size_t slide_index) {
         case 1: // Features slide
             return (Slide) {
                 .title = "✨ Key Features",
-                .background_class = "bg-gradient-to-br from-accent to-info",
+                .background_class = "bg-gradient-to-br from-accent/20 to-info/20",
                 .content = class(
                     element("div", children(
                         text_element("p", "🧩 Component-based architecture"),
@@ -50,7 +50,7 @@ Slide get_slide(size_t slide_index) {
         case 2: // Architecture slide
             return (Slide) {
                 .title = "🏗️ Architecture",
-                .background_class = "bg-gradient-to-br from-success to-warning",
+                .background_class = "bg-gradient-to-br from-success/20 to-warning/20",
                 .content = class(
                     element("div", children(
                         text_element("p", "C Code → WebAssembly → JavaScript Bridge → DOM"),
@@ -66,7 +66,7 @@ Slide get_slide(size_t slide_index) {
         case 3: // Code slide
             return (Slide) {
                 .title = "💻 Example Component",
-                .background_class = "bg-gradient-to-br from-error to-neutral",
+                .background_class = "bg-gradient-to-br from-neutral/20 to-base-300/30",
                 .content = class(
                     element("div", children(
                         text_element("pre", "Element* render_component() {\n"
@@ -86,7 +86,7 @@ Slide get_slide(size_t slide_index) {
         case 4: // Benefits slide
             return (Slide) {
                 .title = "🎯 Why Choose Sandor?",
-                .background_class = "bg-gradient-to-br from-secondary to-primary",
+                .background_class = "bg-gradient-to-br from-secondary/20 to-primary/20",
                 .content = class(
                     element("div", children(
                         text_element("p", "⚡ Near-native performance"),
@@ -102,7 +102,7 @@ Slide get_slide(size_t slide_index) {
         case 5: // Thank you slide
             return (Slide) {
                 .title = "🙏 Thank You!",
-                .background_class = "bg-gradient-to-br from-primary via-accent to-secondary",
+                .background_class = "bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/20",
                 .content = class(
                     element("div", children(
                         text_element("p", "Questions?"),
@@ -162,11 +162,8 @@ Element* slide_navigation() {
                     class(button("⏭", goto_last_slide, NULL), current_slide >= SLIDE_COUNT - 1 ? "btn btn-circle btn-disabled opacity-50" : "btn btn-circle btn-primary")
                 )),
                 "flex items-center justify-center gap-3"
-            ),
-            class(
-                text_element("p", "Use ◀ ▶ buttons to navigate • Full screen presentation mode"),
-                "text-sm text-base-content opacity-70 mt-3 text-center"
-            ))),
+            )
+        )),
         "fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-base-100 bg-opacity-95 backdrop-blur-lg rounded-2xl px-8 py-4 shadow-2xl border border-base-content border-opacity-10"
     );
 }
