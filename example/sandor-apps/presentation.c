@@ -69,15 +69,15 @@ Slide get_slide(size_t slide_index) {
                 .background_class = "bg-gradient-to-br from-error to-neutral",
                 .content = class(
                     element("div", children(
-                        text_element("pre", "Element* render_component() {"),
-                        text_element("pre", "    return class("),
-                        text_element("pre", "        element(\"div\", children("),
-                        text_element("pre", "            text_element(\"h1\", \"Hello World\"),"),
-                        text_element("pre", "            button(\"Click me\", on_click, NULL)"),
-                        text_element("pre", "        )),"),
-                        text_element("pre", "        \"flex flex-col items-center\""),
-                        text_element("pre", "    );"),
-                        text_element("pre", "}")
+                        text_element("pre", "Element* render_component() {\n"
+                                           "    return class(\n"
+                                           "        element(\"div\", children(\n"
+                                           "            text_element(\"h1\", \"Hello World\"),\n"
+                                           "            button(\"Click me\", on_click, NULL)\n"
+                                           "        )),\n"
+                                           "        \"flex flex-col items-center\"\n"
+                                           "    );\n"
+                                           "}")
                     )),
                     CODE_SLIDE_CLASSES
                 )
