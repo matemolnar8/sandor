@@ -61,6 +61,14 @@ export type ResultElement = {
   } & ElementSpecificProps[K];
 }[ElementTypeKeys];
 
+declare global {
+  interface Window {
+    sandor?: {
+      debug?: boolean;
+    };
+  }
+}
+
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
   #memoryDataView: DataView | undefined;
@@ -167,11 +175,13 @@ export class WasmComponent {
 
         case "button":
           element = document.createElement("button");
+          element.id = `sandor-btn-${renderResult.id}`;
           element.addEventListener("click", renderResult.onClick);
           break;
 
         case "input":
           element = document.createElement("input");
+          element.id = `sandor-input-${renderResult.id}`;
           element.setAttribute("type", "text");
           element.setAttribute("placeholder", renderResult.placeholder);
           if (renderResult.text) {
@@ -182,9 +192,6 @@ export class WasmComponent {
             renderResult.onChange(target.value);
           });
           break;
-
-        default:
-          throw new Error(`Unknown element type: ${(renderResult as any).elementType}`);
       }
 
       // Apply common properties
@@ -208,13 +215,15 @@ export class WasmComponent {
 
     renderElement(root, newRootElement);
 
-    const debugRerenderButton = document.createElement("button");
-    debugRerenderButton.classList.add("btn", "rounded-full");
-    debugRerenderButton.textContent = "Debug rerender";
-    debugRerenderButton.addEventListener("click", () => {
-      this.render();
-    });
-    newRootElement.appendChild(debugRerenderButton);
+    if (window.sandor?.debug) {
+      const debugRerenderButton = document.createElement("button");
+      debugRerenderButton.classList.add("btn", "rounded-full");
+      debugRerenderButton.textContent = "Debug rerender";
+      debugRerenderButton.addEventListener("click", () => {
+        this.render();
+      });
+      newRootElement.appendChild(debugRerenderButton);
+    }
 
     const existingRootElement = this.parent.querySelector(`[data-instance-id="${this.instanceId}"]`);
     if (!existingRootElement) {
