@@ -20,28 +20,27 @@ Slide get_slide(size_t slide_index) {
     switch (slide_index) {
         case 0: // Title slide
             return (Slide) {
-                .title = "🚀 Welcome to Sandor",
+                .title = "🚁 sandor.h",
                 .background_class = "bg-gradient-to-br from-primary/20 to-secondary/20",
                 .content = class(
                     element("div", children(
-                        text_element("p", "A modern C framework for building web applications with WebAssembly"),
-                        text_element("p", "Building the future of web development with the power and performance of C")
+                        text_element("p", "WebAssembly-based C framework for web development")
                     )),
                     TEXT_SLIDE_CLASSES
                 )
             };
         
-        case 1: // Features slide
+        case 1: // What is? slide
             return (Slide) {
-                .title = "✨ Key Features",
+                .title = "What is Sandor?",
                 .background_class = "bg-gradient-to-br from-accent/20 to-info/20",
                 .content = class(
                     element("div", children(
-                        text_element("p", "🧩 Component-based architecture"),
-                        text_element("p", "💾 Memory-safe with arena allocation"),
-                        text_element("p", "🔗 Direct DOM manipulation from C"),
-                        text_element("p", "🎨 Modern CSS styling with daisyUI"),
-                        text_element("p", "⚡ High-performance WebAssembly")
+                        class(element("ul", children(
+                            class(text_element("li", "Single-header* library for creating Web UIs in C 🧱"), "mb-2"),
+                            class(text_element("li", "Recreational Programming Project 🚀"), "mb-2"),
+                            class(text_element("li", "The thing that powers this presentation ⚡"), "mb-2")
+                        )), "list-disc list-inside text-left")
                     )),
                     TEXT_SLIDE_CLASSES
                 )
@@ -53,13 +52,27 @@ Slide get_slide(size_t slide_index) {
                 .background_class = "bg-gradient-to-br from-success/20 to-warning/20",
                 .content = class(
                     element("div", children(
-                        text_element("p", "C Code → WebAssembly → JavaScript Bridge → DOM"),
-                        text_element("br", ""),
-                        text_element("p", "✅ Efficient and performant web applications"),
-                        text_element("p", "✅ Type-safe component system"),
-                        text_element("p", "✅ Zero-cost abstractions")
+                        text_element("pre", 
+                            "┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐\n"
+                            "│   C Application │    │      clang      │    │   WebAssembly   │\n"
+                            "│   + sandor.h    │────│       +         │────│     (.wasm)     │\n"
+                            "│                 │    │      nob        │    │                 │\n"
+                            "└─────────────────┘    └─────────────────┘    └─────────────────┘\n"
+                            "                                                        │\n"
+                            "                                                        │\n"
+                            "┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐\n"
+                            "│   Styled DOM    │────│  JS Bridge      │────│  WASM Runtime   │\n"
+                            "│  (HTML + CSS)   │    │  (TypeScript)   │    │   (Browser)     │\n"
+                            "└─────────────────┘    └─────────────────┘    └─────────────────┘\n"
+                            "         │\n"
+                            "         │\n"
+                            "┌─────────────────┐\n"
+                            "│  Tailwind CSS   │\n"
+                            "│   (Styling)     │\n"
+                            "└─────────────────┘"
+                        )
                     )),
-                    TEXT_SLIDE_CLASSES
+                    CODE_SLIDE_CLASSES
                 )
             };
         
