@@ -138,21 +138,30 @@ Slide get_slide(size_t slide_index) {
                 )
             };
         
-        case 4: // Benefits slide
+        case 4: // Future plans slide
             return (Slide) {
-                .title = "🎯 Why Choose Sandor?",
-                .background_class = "bg-gradient-to-br from-secondary/20 to-primary/20",
-                .content = class(
-                    element("div", children(
-                        text_element("p", "⚡ Near-native performance"),
-                        text_element("p", "🛡️ Memory safety"),
-                        text_element("p", "🔧 Familiar C syntax"),
-                        text_element("p", "📱 Modern web technologies"),
-                        text_element("p", "🎨 Beautiful UIs with Tailwind CSS")
-                    )),
-                    TEXT_SLIDE_CLASSES
-                )
-            };
+            .title = "🔮 Future Plans",
+            .background_class = "bg-gradient-to-br from-info/20 to-accent/20",
+            .content = class(
+                element("div", children(
+                    class(element("ul", children(
+                        class(text_element("li", "🎨 Canvas Support"), "mb-4 text-3xl font-bold text-accent"),
+                        class(text_element("li", "• Create framebuffers directly in C code"), "mb-2 ml-6"),
+                        class(text_element("li", "• Render pixel data to HTML5 canvas"), "mb-2 ml-6"),
+                        class(text_element("li", "• Enable 2D/3D graphics and games"), "mb-6 ml-6"),
+                        
+                        class(text_element("li", "� True Single Header Library"), "mb-4 text-3xl font-bold text-primary"),
+                        class(text_element("li", "• Move all dependencies into sandor.h"), "mb-2 ml-6"),
+                        class(text_element("li", "• Self-contained with no external files"), "mb-6 ml-6"),
+                        
+                        class(text_element("li", "🔌 Modular JS Bridge"), "mb-4 text-3xl font-bold text-secondary"),
+                        class(text_element("li", "• Extract JS bridge from examples"), "mb-2 ml-6"),
+                        class(text_element("li", "• Standalone TypeScript package"), "mb-2 ml-6")
+                    )), "list-none text-left")
+                )),
+                "text-lg leading-relaxed " SLIDE_BASE_CLASSES
+            )
+        };
         
         case 5: // Thank you slide
             return (Slide) {
@@ -161,10 +170,12 @@ Slide get_slide(size_t slide_index) {
                 .content = class(
                     element("div", children(
                         text_element("p", "Questions?"),
-                        text_element("br", ""),
-                        text_element("p", "🚀 Build amazing web apps with Sandor today!"),
-                        text_element("br", ""),
-                        text_element("p", "⭐ Star us on GitHub!")
+                        class(
+                            element("a", children(
+                                text_element("span", "https://github.com/matemolnar8/sandor")
+                            )),
+                            "link link-primary"
+                        )
                     )),
                     TEXT_SLIDE_CLASSES
                 )
