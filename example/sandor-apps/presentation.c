@@ -1,15 +1,32 @@
 #include <stdbool.h>
 #include "sandor.h"
 
-#define SLIDE_COUNT 6
-
 typedef struct {
     char* title;
     char* background_class;
     Element* content;
 } Slide;
 
-size_t current_slide = 0;
+// Example component
+size_t click_count = 0;
+
+void example_component_click(void* args) {
+    ASSERT(args == NULL);
+    click_count++;
+}
+
+Element* render_example_component() {
+    char* button_text = arena_sprintf(&r_arena, "Clicked %zu times", click_count);
+    
+    return class(
+        element("div", children(
+            class(text_element("h1", "Hello World"), "text-center"),
+            class(button(button_text, example_component_click, NULL), "btn btn-primary")
+        )),
+        "flex flex-col items-center gap-4"
+    );
+}
+// End of example component
 
 // Common slide styles
 #define SLIDE_BASE_CLASSES "text-base-content bg-base-100 bg-opacity-10 p-8 rounded-2xl backdrop-blur-sm border border-base-content border-opacity-10 shadow-xl"
@@ -82,17 +99,42 @@ Slide get_slide(size_t slide_index) {
                 .background_class = "bg-gradient-to-br from-neutral/20 to-base-300/30",
                 .content = class(
                     element("div", children(
-                        text_element("pre", "Element* render_component() {\n"
-                                           "    return class(\n"
-                                           "        element(\"div\", children(\n"
-                                           "            text_element(\"h1\", \"Hello World\"),\n"
-                                           "            button(\"Click me\", on_click, NULL)\n"
-                                           "        )),\n"
-                                           "        \"flex flex-col items-center\"\n"
-                                           "    );\n"
-                                           "}")
+                        // Code example
+                        class(
+                            element("div", children(
+                                class(text_element("h2", "Code"), "text-xl font-bold mb-4"),
+                                text_element("pre", "#include \"sandor.h\"\n"
+                                                   "\n"
+                                                   "size_t click_count = 0;\n"
+                                                   "\n"
+                                                   "void example_component_click(void* args) {\n"
+                                                   "    ASSERT(args == NULL);\n"
+                                                   "    click_count++;\n"
+                                                   "}\n"
+                                                   "\n"
+                                                   "Element* render_example_component() {\n"
+                                                   "    char* button_text = arena_sprintf(&r_arena, \"Clicked %zu times\", click_count);\n"
+                                                   "    \n"
+                                                   "    return class(\n"
+                                                   "        element(\"div\", children(\n"
+                                                   "            class(text_element(\"h1\", \"Hello World\"), \"text-center\"),\n"
+                                                   "            class(button(button_text, example_component_click, NULL), \"btn btn-primary\")\n"
+                                                   "        )),\n"
+                                                   "        \"flex flex-col items-center gap-4\"\n"
+                                                   "    );\n"
+                                                   "}")
+                            )),
+                            "bg-base-100 p-4 rounded font-mono text-sm flex-1"
+                        ),
+                        // Interactive example
+                        class(
+                            element("div", children(
+                                render_example_component()
+                            )),
+                            "flex-1 flex flex-col items-center justify-center border border-base-content border-opacity-20 rounded p-6"
+                        )
                     )),
-                    CODE_SLIDE_CLASSES
+                    "flex gap-6 w-full " SLIDE_BASE_CLASSES
                 )
             };
         
@@ -136,6 +178,9 @@ Slide get_slide(size_t slide_index) {
             };
     }
 }
+
+#define SLIDE_COUNT 6
+size_t current_slide = 0;
 
 void next_slide(void* args) {
     ASSERT(args == NULL);
@@ -194,7 +239,7 @@ Element* slide_content(Slide slide) {
             ),
             slide.content
         )),
-        "flex flex-col items-center justify-center flex-1 p-16 max-w-6xl mx-auto"
+        "flex flex-col items-center justify-center flex-1 p-8 mx-auto"
     );
 }
 
