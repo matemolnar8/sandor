@@ -1,7 +1,7 @@
 const apps = [
+  { value: "canvas", label: "Canvas" },
   { value: "test", label: "Test" },
   { value: "todolist", label: "Todolist" },
-  { value: "canvas", label: "Canvas" },
 ];
 
 function createApp(name: string) {
