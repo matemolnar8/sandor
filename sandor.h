@@ -28,6 +28,8 @@
 #include "macros.h"
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
+#define OLIVEC_IMPLEMENTATION
+#include "olive.c"
 
 void platform_write(void *buffer, size_t len);
 
@@ -142,6 +144,7 @@ typedef struct {
     } 
 
 void platform_rerender();
+void platform_draw_canvas(Olivec_Canvas* canvas);
 
 Arena r_arena = {0};
 Elements r_elements = {0};
@@ -326,6 +329,9 @@ Element* text_element(const char* tag, const char* text)
 }
 
 Element* render_component();
+
+[[clang::export_name("init_component")]]
+void init_component();
 
 [[clang::export_name("render_component")]]
 Element* render_component_internal() {

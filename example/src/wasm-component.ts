@@ -5,6 +5,7 @@ type WasmInstance = {
   exports: {
     memory: WebAssembly.Memory;
     render_component: () => number;
+    init_component?: () => void;
     invoke_on_click: (elementIndex: number) => void;
     invoke_on_change: (elementIndex: number, valuePtr: number) => void;
     get_input_buffer: () => number;
@@ -75,7 +76,6 @@ declare global {
     };
   }
 }
-
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
   #memoryDataView: DataView | undefined;
@@ -83,6 +83,7 @@ export class WasmComponent {
   wasmPath: string;
   parent: HTMLElement | undefined;
   instanceId = crypto.randomUUID();
+  initialized = false;
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -111,6 +112,29 @@ export class WasmComponent {
           },
           platform_rerender: () => {
             this.render();
+          },
+          platform_draw_canvas: (canvasPtr: number) => {
+            // TODO get canvas element by ID
+            const canvas = parent.querySelector("#demo-canvas") as HTMLCanvasElement;
+            if (!canvas) {
+              console.error("Canvas element not found");
+              return;
+            }
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              console.error("Failed to get canvas context");
+              return;
+            }
+
+            const olivecCanvas = this.readCanvasFromMemory(canvasPtr);
+            if (olivecCanvas.width != olivecCanvas.stride) {
+              console.error(
+                `Canvas width (${canvas.width}) is not equal to its stride (${olivecCanvas.stride}).`
+              );
+              return;
+            }
+            const image = new ImageData(new Uint8ClampedArray(olivecCanvas.pixels), canvas.width);
+            ctx.putImageData(image, 0, 0);
           },
         },
       })
@@ -168,6 +192,13 @@ export class WasmComponent {
   }
 
   render() {
+    if (!this.initialized) {
+      if (this.instance.exports.init_component) {
+        this.instance.exports.init_component();
+      }
+      this.initialized = true;
+    }
+
     const resultAddr = this.instance.exports.render_component();
     const root = this.readElement(resultAddr);
 
@@ -256,6 +287,22 @@ export class WasmComponent {
     } else {
       morphdom(existingRootElement, newRootElement);
     }
+  }
+
+  readCanvasFromMemory(ptr: number) {
+    const dataView = new DataView(this.instance.exports.memory.buffer);
+    const pixelsPtr = dataView.getUint32(ptr, true);
+    const width = dataView.getUint32(ptr + 4, true);
+    const height = dataView.getUint32(ptr + 8, true);
+    const stride = dataView.getUint32(ptr + 12, true);
+    const pixels = new Uint8ClampedArray(this.instance.exports.memory.buffer, pixelsPtr, width * height * 4);
+
+    return {
+      width,
+      height,
+      stride,
+      pixels,
+    };
   }
 
   readElement(address: number): ResultElement {
