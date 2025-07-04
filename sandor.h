@@ -86,6 +86,7 @@ typedef enum {
     ELEMENT_GENERIC = 0,
     ELEMENT_BUTTON = 1,
     ELEMENT_INPUT = 2,
+    ELEMENT_CANVAS = 3,
 } ElementType;
 
 typedef struct {
@@ -102,6 +103,12 @@ typedef struct {
     void (*on_change)(const char*);
 } InputElement;
 
+typedef struct {
+    char* id;
+    size_t width;
+    size_t height;
+} CanvasElement;
+
 struct Element {
     ElementType type;
     size_t index;
@@ -116,6 +123,7 @@ struct Element {
         GenericElement generic;
         ButtonElement button;
         InputElement input;
+        CanvasElement canvas;
     };
 };
 
@@ -229,7 +237,7 @@ Element* element(const char* tag, Children* children)
 {
     Element* result = ELEMENT({
         .type = ELEMENT_GENERIC,
-        .index = 0,
+        .index = r_elements.count,
         .text = NULL,
         .children = children,
         .attributes = NULL,
@@ -238,7 +246,6 @@ Element* element(const char* tag, Children* children)
         }
     });
 
-    result->index = r_elements.count;
     arena_da_append(&r_arena, &r_elements, result);
 
     return result;
@@ -248,7 +255,7 @@ Element* button(char* text, void (*callback)(void*), void* args)
 {
     Element* result = ELEMENT({
         .type = ELEMENT_BUTTON,
-        .index = 0,
+        .index = r_elements.count,
         .text = text,
         .children = children_empty(),
         .attributes = NULL,
@@ -258,7 +265,6 @@ Element* button(char* text, void (*callback)(void*), void* args)
         }
     });
 
-    result->index = r_elements.count;
     arena_da_append(&r_arena, &r_elements, result);
 
     return result;
@@ -268,7 +274,7 @@ Element* input(const char* placeholder, void (*on_change)(const char*))
 {
     Element* result = ELEMENT({
         .type = ELEMENT_INPUT,
-        .index = 0,
+        .index = r_elements.count,
         .text = NULL,
         .children = NULL,
         .attributes = NULL,
@@ -278,7 +284,26 @@ Element* input(const char* placeholder, void (*on_change)(const char*))
         }
     });
 
-    result->index = r_elements.count;
+    arena_da_append(&r_arena, &r_elements, result);
+
+    return result;
+}
+
+Element* canvas(char* id, size_t width, size_t height)
+{
+    Element* result = ELEMENT({
+        .type = ELEMENT_CANVAS,
+        .index = r_elements.count,
+        .text = NULL,
+        .children = NULL,
+        .attributes = NULL,
+        .canvas = {
+            .width = width,
+            .height = height,
+            .id = id ? arena_strdup(&r_arena, id) : arena_sprintf(&r_arena, "canvas-%zu", r_elements.count)
+        }
+    });
+
     arena_da_append(&r_arena, &r_elements, result);
 
     return result;
@@ -363,8 +388,14 @@ const size_t* get_element_layout() {
         // Input element offsets (relative to union start)
         offsetof(InputElement, placeholder),   // 9
         offsetof(InputElement, on_change),     // 10
-        
-        sizeof(Element)                        // 11: total element size
+
+        // Canvas element offsets (relative to union start)
+        offsetof(CanvasElement, id),           // 11
+        offsetof(CanvasElement, width),        // 12
+        offsetof(CanvasElement, height),       // 13
+
+        // Total size of the Element struct
+        sizeof(Element)
     };
     return layout;
 }
