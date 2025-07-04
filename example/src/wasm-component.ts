@@ -19,13 +19,15 @@ const ElementType = {
   GENERIC: 0,
   BUTTON: 1,
   INPUT: 2,
+  CANVAS: 3,
 } as const;
 
-type ElementTypeKeys = "generic" | "button" | "input";
+type ElementTypeKeys = "generic" | "button" | "input" | "canvas";
 type ElementSpecificOffsets = {
   generic: { tag: number };
   button: { onClick: number; onClickArgs: number };
   input: { placeholder: number; onChange: number };
+  canvas: { id: number; width: number; height: number };
 };
 type ElementOffsets = {
   type: number;
@@ -46,6 +48,11 @@ type ElementSpecificProps = {
   input: {
     placeholder: string;
     onChange: (value: string) => void;
+  };
+  canvas: {
+    canvasId: string;
+    width: number;
+    height: number;
   };
 };
 
@@ -129,6 +136,9 @@ export class WasmComponent {
       BUTTON_ON_CLICK_ARGS: 8,
       INPUT_PLACEHOLDER: 9,
       INPUT_ON_CHANGE: 10,
+      CANVAS_ID: 11,
+      CANVAS_WIDTH: 12,
+      CANVAS_HEIGHT: 13,
     };
 
     this.#elementOffsets = {
@@ -148,6 +158,11 @@ export class WasmComponent {
       input: {
         placeholder: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_PLACEHOLDER * sizeOfSizeT, true),
         onChange: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_ON_CHANGE * sizeOfSizeT, true),
+      },
+      canvas: {
+        id: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_ID * sizeOfSizeT, true),
+        width: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_WIDTH * sizeOfSizeT, true),
+        height: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_HEIGHT * sizeOfSizeT, true),
       },
     };
   }
@@ -192,6 +207,16 @@ export class WasmComponent {
             renderResult.onChange(target.value);
           });
           break;
+
+        case "canvas":
+          element = document.createElement("canvas");
+          element.id = renderResult.canvasId;
+          element.setAttribute("width", renderResult.width.toString());
+          element.setAttribute("height", renderResult.height.toString());
+          break;
+
+        default:
+          throw new Error(`Unknown element type: ${(renderResult as any).elementType}`);
       }
 
       // Apply common properties
@@ -329,6 +354,24 @@ export class WasmComponent {
           children,
           attributes,
           onChange,
+        };
+      }
+
+      case ElementType.CANVAS: {
+        const idPtr = dataView.getUint32(unionAddress + offsets.canvas.id, true);
+        const canvasId = this.readString(idPtr);
+        const width = dataView.getUint32(unionAddress + offsets.canvas.width, true);
+        const height = dataView.getUint32(unionAddress + offsets.canvas.height, true);
+
+        return {
+          elementType: "canvas",
+          id,
+          canvasId,
+          width,
+          height,
+          text,
+          children,
+          attributes,
         };
       }
 

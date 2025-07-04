@@ -49,6 +49,10 @@ int main(int argc, char **argv)
     if (!build_sandor_app("todolist")) {
         return 1;
     }
+
+    if (!build_sandor_app("canvas")) {
+        return 1;
+    }
     
     return 0;
 }
