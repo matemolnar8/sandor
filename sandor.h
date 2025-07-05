@@ -144,7 +144,7 @@ typedef struct {
     } 
 
 void platform_rerender();
-void platform_draw_canvas(Olivec_Canvas* canvas);
+void platform_draw_canvas(char* canvas_id, Olivec_Canvas* canvas);
 
 Arena r_arena = {0};
 Elements r_elements = {0};
