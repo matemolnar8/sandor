@@ -4,7 +4,7 @@
 #include "nob.h"
 
 #define WASM_CFLAGS  "-I..", "-I../lib", "-std=c23", "-Wall", "-Werror", "-Os", "-g", \
-                     "-mbulk-memory", "--target=wasm32", "-nostdlib"
+                     "-mbulk-memory", "--target=wasm32", "-nostdlib", "-fno-builtin", 
 
 #define WASM_LDFLAGS "-Wl,--export-dynamic", "-Wl,--no-entry", "-Wl,--export=__heap_base", \
                      "-Wl,--initial-memory=10485760", "-Wl,--allow-undefined"

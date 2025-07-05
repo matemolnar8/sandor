@@ -13,28 +13,85 @@ void init_component() {
     demo_canvas = olivec_canvas(pixels, 400, 300, 400);
 }
 
+float sqrtf(float x);
+float atan2f(float y, float x);
+float sinf(float x);
+float cosf(float x);
+
+#define PI 3.14159265359
+
+#define BACKGROUND_COLOR 0xFF181818
+#define GRID_COUNT 10
+#define GRID_PAD 0.5/GRID_COUNT
+#define GRID_SIZE ((GRID_COUNT - 1)*GRID_PAD)
+#define CIRCLE_RADIUS 5
+#define Z_START 0.25
+
+static float angle = 0;
+
+// Copied from Tsoding olive.c example
+Olivec_Canvas vc_render(float dt)
+{
+    angle += 0.25*PI*dt;
+
+    Olivec_Canvas oc = olivec_canvas(pixels, WIDTH, HEIGHT, WIDTH);
+
+    olivec_fill(oc, BACKGROUND_COLOR);
+    for (int ix = 0; ix < GRID_COUNT; ++ix) {
+        for (int iy = 0; iy < GRID_COUNT; ++iy) {
+            for (int iz = 0; iz < GRID_COUNT; ++iz) {
+                float x = ix*GRID_PAD - GRID_SIZE/2;
+                float y = iy*GRID_PAD - GRID_SIZE/2;
+                float z = Z_START + iz*GRID_PAD;
+
+                float cx = 0.0;
+                float cz = Z_START + GRID_SIZE/2;
+
+                float dx = x - cx;
+                float dz = z - cz;
+
+                float a = atan2f(dz, dx);
+                float m = sqrtf(dx*dx + dz*dz);
+
+                dx = cosf(a + angle)*m;
+                dz = sinf(a + angle)*m;
+
+                x = dx + cx;
+                z = dz + cz;
+
+                x /= z;
+                y /= z;
+
+                uint32_t r = ix*255/GRID_COUNT;
+                uint32_t g = iy*255/GRID_COUNT;
+                uint32_t b = iz*255/GRID_COUNT;
+                uint32_t color = 0xFF000000 | (r<<(0*8)) | (g<<(1*8)) | (b<<(2*8));
+                olivec_circle(oc, (x + 1)/2*WIDTH, (y + 1)/2*HEIGHT, CIRCLE_RADIUS, color);
+            }
+        }
+    }
+
+    return oc;
+}
+
+char* canvas_id = "demo-canvas";
+
 void draw_canvas(void* args)
 {
     ASSERT(args == NULL);
 
-    olivec_fill(demo_canvas, 0xFFFFFFFF);
+    float dt = 0.064; // Simulate a frame time of 64ms (15.625 FPS)
 
-    size_t rect_x = demo_canvas.width / 4;
-    size_t rect_y = demo_canvas.height / 4;
-    size_t rect_width = demo_canvas.width / 2;
-    size_t rect_height = demo_canvas.height / 2;
+    demo_canvas = vc_render(dt);
 
-    olivec_rect(demo_canvas, rect_x, rect_y, rect_width, rect_height, 0xFF0000FF);
-    olivec_circle(demo_canvas, demo_canvas.width / 2, demo_canvas.height / 2, 50, 0xFF00FF00);
-
-    platform_draw_canvas(&demo_canvas);
+    platform_draw_canvas(canvas_id, &demo_canvas);
 }
 
 Element* render_component()
 {
     render_count++;
 
-    Element* canvas_element = canvas("demo-canvas", 400, 300);
+    Element* canvas_element = canvas(canvas_id, 400, 300);
 
     return class(
         element("div", children(

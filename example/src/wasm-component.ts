@@ -76,6 +76,13 @@ declare global {
     };
   }
 }
+
+const libm = {
+    "atan2f": Math.atan2,
+    "cosf": Math.cos,
+    "sinf": Math.sin,
+    "sqrtf": Math.sqrt,
+};
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
   #memoryDataView: DataView | undefined;
@@ -106,6 +113,7 @@ export class WasmComponent {
     this.#instance = (
       await WebAssembly.instantiateStreaming(fetch(this.wasmPath), {
         env: {
+          ...libm,
           platform_write: (buf: number, len: number) => {
             const text = decoder.decode(new Uint8Array(this.instance.exports.memory.buffer, buf, len));
             console.log(text);
@@ -113,9 +121,9 @@ export class WasmComponent {
           platform_rerender: () => {
             this.render();
           },
-          platform_draw_canvas: (canvasPtr: number) => {
-            // TODO get canvas element by ID
-            const canvas = parent.querySelector("#demo-canvas") as HTMLCanvasElement;
+          platform_draw_canvas: (canvasIdPtr: number, canvasPtr: number) => {
+            const canvasId = this.readString(canvasIdPtr);
+            const canvas = parent.querySelector(`#${canvasId}`) as HTMLCanvasElement;
             if (!canvas) {
               console.error("Canvas element not found");
               return;
