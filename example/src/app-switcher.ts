@@ -16,22 +16,31 @@ function switchApp(name: string) {
   const container = document.getElementById("app-container")!;
   container.innerHTML = "";
   container.appendChild(createApp(name));
+  
+  // Update the button label
+  const label = document.getElementById("app-selector-label")!;
+  const selectedApp = apps.find(app => app.value === name);
+  label.textContent = selectedApp?.label || name;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const select = document.getElementById("app-selector") as HTMLSelectElement;
+  const dropdown = document.getElementById("app-selector-dropdown") as HTMLUListElement;
 
-  apps.forEach((app, i) => {
-    const option = document.createElement("option");
-    option.value = app.value;
-    option.textContent = app.label;
-    if (i === 0) option.selected = true;
-    select.appendChild(option);
+  // Populate dropdown items
+  apps.forEach((app) => {
+    const li = document.createElement("li");
+    const button = document.createElement("button");
+    button.className = "btn btn-sm btn-block btn-ghost justify-start";
+    button.textContent = app.label;
+    button.addEventListener("click", () => {
+      switchApp(app.value);
+      // Close dropdown by removing focus
+      dropdown.blur();
+    });
+    li.appendChild(button);
+    dropdown.appendChild(li);
   });
 
-  select.addEventListener("change", (e) => {
-    switchApp((e.target as HTMLSelectElement).value);
-  });
-
+  // Initialize with first app
   switchApp(apps[0].value);
 });

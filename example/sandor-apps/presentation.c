@@ -29,19 +29,19 @@ Element* render_example_component() {
 // End of example component
 
 // Common slide styles
-#define SLIDE_BASE_CLASSES "text-base-content bg-base-100 bg-opacity-10 p-8 rounded-2xl backdrop-blur-sm border border-base-content border-opacity-10 shadow-xl"
+#define SLIDE_BASE_CLASSES "bg-base-100 p-8 rounded-2xl shadow-xl"
 #define TEXT_SLIDE_CLASSES "text-2xl text-center leading-relaxed whitespace-pre-line " SLIDE_BASE_CLASSES
-#define CODE_SLIDE_CLASSES "bg-opacity-20 font-mono text-left overflow-auto border-opacity-20 shadow-2xl " SLIDE_BASE_CLASSES
+#define CODE_SLIDE_CLASSES "font-mono overflow-auto p-8 rounded-2xl shadow-xl " SLIDE_BASE_CLASSES
 
 Slide get_slide(size_t slide_index) {
     switch (slide_index) {
         case 0: // Title slide
             return (Slide) {
                 .title = "🚁 sandor.h",
-                .background_class = "bg-gradient-to-br from-primary/20 to-secondary/20",
+                .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
-                        text_element("p", "WebAssembly-based C framework for web development")
+                        text_element("p", "Write web UIs in C")
                     )),
                     TEXT_SLIDE_CLASSES
                 )
@@ -50,13 +50,13 @@ Slide get_slide(size_t slide_index) {
         case 1: // What is? slide
             return (Slide) {
                 .title = "What is Sandor?",
-                .background_class = "bg-gradient-to-br from-accent/20 to-info/20",
+                .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
                         class(element("ul", children(
-                            class(text_element("li", "Single-header* library for creating Web UIs in C 🧱"), "mb-2"),
-                            class(text_element("li", "Recreational Programming Project 🚀"), "mb-2"),
-                            class(text_element("li", "The thing that powers this presentation ⚡"), "mb-2")
+                            text_element("li", "Single-header library for web UIs in C"),
+                            text_element("li", "Recreational programming"),
+                            text_element("li", "Powers this presentation")
                         )), "list-disc list-inside text-left")
                     )),
                     TEXT_SLIDE_CLASSES
@@ -66,7 +66,7 @@ Slide get_slide(size_t slide_index) {
         case 2: // Architecture slide
             return (Slide) {
                 .title = "🏗️ Architecture",
-                .background_class = "bg-gradient-to-br from-success/20 to-warning/20",
+                .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
                         text_element("pre", 
@@ -96,7 +96,7 @@ Slide get_slide(size_t slide_index) {
         case 3: // Code slide
             return (Slide) {
                 .title = "💻 Example Component",
-                .background_class = "bg-gradient-to-br from-neutral/20 to-base-300/30",
+                .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
                         // Code example
@@ -124,57 +124,49 @@ Slide get_slide(size_t slide_index) {
                                                    "    );\n"
                                                    "}")
                             )),
-                            "bg-base-100 p-4 rounded font-mono text-sm flex-1"
+                            "text-sm flex-1 " CODE_SLIDE_CLASSES
                         ),
                         // Interactive example
                         class(
                             element("div", children(
                                 render_example_component()
                             )),
-                            "flex-1 flex flex-col items-center justify-center border border-base-content border-opacity-20 rounded p-6"
+                            "flex flex-col items-center justify-center " SLIDE_BASE_CLASSES
                         )
                     )),
-                    "flex gap-6 w-full " SLIDE_BASE_CLASSES
+                    "flex gap-6 w-full"
                 )
             };
         
         case 4: // Future plans slide
             return (Slide) {
-            .title = "🔮 Future Plans",
-            .background_class = "bg-gradient-to-br from-info/20 to-accent/20",
+            .title = "What's next?",
+            .background_class = "bg-base-200",
             .content = class(
                 element("div", children(
                     class(element("ul", children(
-                        class(text_element("li", "🎨 Canvas Support"), "mb-4 text-3xl font-bold text-accent"),
-                        class(text_element("li", "• Create framebuffers directly in C code"), "mb-2 ml-6"),
-                        class(text_element("li", "• Render pixel data to HTML5 canvas"), "mb-2 ml-6"),
-                        class(text_element("li", "• Enable 2D/3D graphics and games"), "mb-6 ml-6"),
-                        
-                        class(text_element("li", "� True Single Header Library"), "mb-4 text-3xl font-bold text-primary"),
-                        class(text_element("li", "• Move all dependencies into sandor.h"), "mb-2 ml-6"),
-                        class(text_element("li", "• Self-contained with no external files"), "mb-6 ml-6"),
-                        
-                        class(text_element("li", "🔌 Modular JS Bridge"), "mb-4 text-3xl font-bold text-secondary"),
-                        class(text_element("li", "• Extract JS bridge from examples"), "mb-2 ml-6"),
-                        class(text_element("li", "• Standalone TypeScript package"), "mb-2 ml-6")
+                        text_element("li", "🎨 Canvas rendering"),
+                        text_element("li", "⌨️ Keyboard events"),
+                        text_element("li", "📦 Actually single-header"),
+                        text_element("li", "🔌 Standalone TS bridge")
                     )), "list-none text-left")
                 )),
-                "text-lg leading-relaxed " SLIDE_BASE_CLASSES
+                TEXT_SLIDE_CLASSES
             )
         };
         
         case 5: // Thank you slide
             return (Slide) {
-                .title = "🙏 Thank You!",
-                .background_class = "bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/20",
+                .title = "Thanks!",
+                .background_class = "bg-success",
                 .content = class(
                     element("div", children(
-                        text_element("p", "Questions?"),
+                        text_element("p", "Any questions?"),
                         class(
                             element("a", children(
-                                text_element("span", "https://github.com/matemolnar8/sandor")
+                                text_element("span", "github.com/matemolnar8/sandor")
                             )),
-                            "link link-primary"
+                            "link"
                         )
                     )),
                     TEXT_SLIDE_CLASSES
@@ -224,16 +216,16 @@ Element* slide_navigation() {
         element("div", children(
             class(
                 element("div", children(
-                    class(button("⏮", goto_first_slide, NULL), current_slide == 0 ? "btn btn-circle btn-disabled opacity-50" : "btn btn-circle btn-primary"),
-                    class(button("◀", prev_slide, NULL), current_slide == 0 ? "btn btn-circle btn-disabled opacity-50" : "btn btn-circle btn-secondary"),
-                    class(text_element("span", slide_counter), "mx-6 text-lg font-bold text-base-content bg-base-100 bg-opacity-80 px-4 py-2 rounded-full"),
-                    class(button("▶", next_slide, NULL), current_slide >= SLIDE_COUNT - 1 ? "btn btn-circle btn-disabled opacity-50" : "btn btn-circle btn-secondary"),
-                    class(button("⏭", goto_last_slide, NULL), current_slide >= SLIDE_COUNT - 1 ? "btn btn-circle btn-disabled opacity-50" : "btn btn-circle btn-primary")
+                    class(button("⏮", goto_first_slide, NULL), current_slide == 0 ? "btn btn-circle btn-disabled" : "btn btn-circle btn-primary"),
+                    class(button("◀", prev_slide, NULL), current_slide == 0 ? "btn btn-circle btn-disabled" : "btn btn-circle btn-secondary"),
+                    class(text_element("span", slide_counter), "mx-6 text-lg font-bold badge badge-neutral badge-lg"),
+                    class(button("▶", next_slide, NULL), current_slide >= SLIDE_COUNT - 1 ? "btn btn-circle btn-disabled" : "btn btn-circle btn-secondary"),
+                    class(button("⏭", goto_last_slide, NULL), current_slide >= SLIDE_COUNT - 1 ? "btn btn-circle btn-disabled" : "btn btn-circle btn-primary")
                 )),
                 "flex items-center justify-center gap-3"
             )
         )),
-        "fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-base-100 bg-opacity-95 backdrop-blur-lg rounded-2xl px-8 py-4 shadow-2xl border border-base-content border-opacity-10"
+        "fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-base-100 rounded-2xl px-8 py-4 shadow-2xl"
     );
 }
 
@@ -246,7 +238,7 @@ Element* slide_content(Slide slide) {
         element("div", children(
             class(
                 text_element("h1", slide.title), 
-                "text-7xl font-black text-base-content mb-12 text-center drop-shadow-2xl"
+                "text-7xl font-black mb-12 text-center"
             ),
             slide.content
         )),
