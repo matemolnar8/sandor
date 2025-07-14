@@ -141,20 +141,20 @@ Slide get_slide(size_t slide_index) {
         
         case 4: // Future plans slide
             return (Slide) {
-            .title = "What's next?",
-            .background_class = "bg-base-200",
-            .content = class(
-                element("div", children(
-                    class(element("ul", children(
-                        text_element("li", "🎨 Canvas rendering"),
-                        text_element("li", "⌨️ Keyboard events"),
-                        text_element("li", "📦 Actually single-header"),
-                        text_element("li", "🔌 Standalone TS bridge")
-                    )), "list-none text-left")
-                )),
-                TEXT_SLIDE_CLASSES
-            )
-        };
+                .title = "What's next?",
+                .background_class = "bg-base-200",
+                .content = class(
+                    element("div", children(
+                        class(element("ul", children(
+                            text_element("li", "🎨 Canvas rendering"),
+                            text_element("li", "⌨️ Keyboard events"),
+                            text_element("li", "📦 Actually single-header"),
+                            text_element("li", "🔌 Standalone TS bridge")
+                        )), "list-none text-left")
+                    )),
+                    TEXT_SLIDE_CLASSES
+                )
+            };
         
         case 5: // Thank you slide
             return (Slide) {
