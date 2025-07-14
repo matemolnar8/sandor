@@ -49,7 +49,7 @@ Slide get_slide(size_t slide_index) {
         
         case 1: // What is? slide
             return (Slide) {
-                .title = "What is Sandor?",
+                .title = "What is sandor.h?",
                 .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
