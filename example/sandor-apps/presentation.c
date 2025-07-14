@@ -8,7 +8,7 @@ typedef struct {
 } Slide;
 
 // Example component
-size_t click_count = 0;
+int click_count = 0;
 
 void example_component_click(void* args) {
     ASSERT(args == NULL);
@@ -16,7 +16,7 @@ void example_component_click(void* args) {
 }
 
 Element* render_example_component() {
-    char* button_text = arena_sprintf(&r_arena, "Clicked %zu times", click_count);
+    char* button_text = arena_sprintf(&r_arena, "Clicked %d times", click_count);
     
     return class(
         element("div", children(
@@ -103,17 +103,18 @@ Slide get_slide(size_t slide_index) {
                         class(
                             element("div", children(
                                 class(text_element("h2", "Code"), "text-xl font-bold mb-4"),
+                                // This should always reflect the actual code in the example component, except for the function name as that should be render_component for the example to be valid
                                 text_element("pre", "#include \"sandor.h\"\n"
                                                    "\n"
-                                                   "size_t click_count = 0;\n"
+                                                   "int click_count = 0;\n"
                                                    "\n"
                                                    "void example_component_click(void* args) {\n"
                                                    "    ASSERT(args == NULL);\n"
                                                    "    click_count++;\n"
                                                    "}\n"
                                                    "\n"
-                                                   "Element* render_example_component() {\n"
-                                                   "    char* button_text = arena_sprintf(&r_arena, \"Clicked %zu times\", click_count);\n"
+                                                   "Element* render_component() {\n"
+                                                   "    char* button_text = arena_sprintf(&r_arena, \"Clicked %d times\", click_count);\n"
                                                    "    \n"
                                                    "    return class(\n"
                                                    "        element(\"div\", children(\n"
