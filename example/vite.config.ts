@@ -3,18 +3,24 @@ import tailwindcss from "@tailwindcss/vite";
 import { run } from "vite-plugin-run";
 
 export default defineConfig({
+  base: process.env.NODE_ENV === "production" ? "/sandor/" : "/",
   plugins: [
     tailwindcss(),
-    run({
-      input: [
-        {
-          name: "nob",
-          run: ["./nob"],
-          pattern: ["wasm/**/*.c", "wasm/**/*.h"],
-        },
-      ],
-      silent: false,
-    }),
+    // nob should be run manually before the build in production
+    ...(process.env.NODE_ENV === "production"
+      ? []
+      : [
+          run({
+            input: [
+              {
+                name: "nob",
+                run: ["./nob"],
+                pattern: ["sandor-apps/*.c"],
+              },
+            ],
+            silent: false,
+          }),
+        ]),
     {
       name: "reload",
       configureServer(server) {

@@ -7,7 +7,8 @@
     "dev:vite": "vite",
     "dev": "run-p dev:vite nob",
     "nob": "./nob",
-    "build": "tsc && vite build && ./nob",
+    "nob:bootstrap": "cc -o nob nob.c",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
