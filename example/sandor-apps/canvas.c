@@ -2,21 +2,14 @@
 
 int render_count = 0;
 
-#define WIDTH 400
-#define HEIGHT 300
-uint32_t pixels[WIDTH*HEIGHT];
-
-Olivec_Canvas demo_canvas = OLIVEC_CANVAS_NULL;
-
-void init_component() {
-    printf("Initializing Canvas Component\n");
-    demo_canvas = olivec_canvas(pixels, 400, 300, 400);
-}
-
+// Math functions provided by the platform
 float sqrtf(float x);
 float atan2f(float y, float x);
 float sinf(float x);
 float cosf(float x);
+
+#define WIDTH 400
+#define HEIGHT 300
 
 #define PI 3.14159265359
 
@@ -24,8 +17,11 @@ float cosf(float x);
 #define GRID_COUNT 10
 #define GRID_PAD 0.5/GRID_COUNT
 #define GRID_SIZE ((GRID_COUNT - 1)*GRID_PAD)
-#define CIRCLE_RADIUS 5
-#define Z_START 0.25
+#define CIRCLE_RADIUS 4
+#define Z_START 0.4
+
+uint32_t pixels[WIDTH*HEIGHT];
+Olivec_Canvas demo_canvas = OLIVEC_CANVAS_NULL;
 
 static float angle = 0;
 
@@ -76,15 +72,17 @@ Olivec_Canvas vc_render(float dt)
 
 char* canvas_id = "demo-canvas";
 
-void draw_canvas(void* args)
+void draw_canvas(float dt)
 {
-    ASSERT(args == NULL);
-
-    float dt = 0.064; // Simulate a frame time of 64ms (15.625 FPS)
-
     demo_canvas = vc_render(dt);
 
     platform_draw_canvas(canvas_id, &demo_canvas);
+}
+
+void init_component() {
+    printf("Initializing Canvas Component\n");
+
+    platform_on_animation_frame(draw_canvas);
 }
 
 Element* render_component()
@@ -101,8 +99,7 @@ Element* render_component()
             class(
                 canvas_element,
                 "border-2 border-gray-300 bg-white rounded-lg shadow-md"
-            ),
-            class(button("Draw", draw_canvas, NULL), "btn btn-primary mt-4")
+            )
         )),
         "flex-1 flex flex-col items-center justify-center gap-4 p-6"
     );

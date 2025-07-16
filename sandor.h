@@ -145,6 +145,7 @@ typedef struct {
 
 void platform_rerender();
 void platform_draw_canvas(char* canvas_id, Olivec_Canvas* canvas);
+void platform_on_animation_frame(void (*callback)(float dt));
 
 Arena r_arena = {0};
 Elements r_elements = {0};
@@ -362,6 +363,12 @@ void invoke_on_change(size_t element_index, const char* value) {
         element->input.on_change(value);
         platform_rerender();
     }
+}
+
+[[clang::export_name("invoke_animation_frame_callback")]]
+void invoke_animation_frame_callback(void (*callback)(float dt), float dt) {
+    ASSERT(callback != NULL);
+    callback(dt);
 }
 
 Arena input_arena = {0};

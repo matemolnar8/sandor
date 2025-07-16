@@ -10,6 +10,7 @@ type WasmInstance = {
     invoke_on_change: (elementIndex: number, valuePtr: number) => void;
     get_input_buffer: () => number;
     get_element_layout: () => number;
+    invoke_animation_frame_callback: (callbackPtr: number, dt: number) => void;
   };
 };
 
@@ -78,10 +79,10 @@ declare global {
 }
 
 const libm = {
-    "atan2f": Math.atan2,
-    "cosf": Math.cos,
-    "sinf": Math.sin,
-    "sqrtf": Math.sqrt,
+  atan2f: Math.atan2,
+  cosf: Math.cos,
+  sinf: Math.sin,
+  sqrtf: Math.sqrt,
 };
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
@@ -91,6 +92,7 @@ export class WasmComponent {
   parent: HTMLElement | undefined;
   instanceId = crypto.randomUUID();
   initialized = false;
+  animationFrameCallbacks: (() => void)[] = [];
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -121,6 +123,16 @@ export class WasmComponent {
           platform_rerender: () => {
             this.render();
           },
+          platform_on_animation_frame: (callbackPtr: number) => {
+            let dt = 0;
+            let now = performance.now();
+            const callback = () => {
+              dt = (performance.now() - now) / 1000; // Convert to seconds
+              this.instance.exports.invoke_animation_frame_callback(callbackPtr, dt);
+              now = performance.now();
+            };
+            this.animationFrameCallbacks.push(callback);
+          },
           platform_draw_canvas: (canvasIdPtr: number, canvasPtr: number) => {
             const canvasId = this.readString(canvasIdPtr);
             const canvas = parent.querySelector(`#${canvasId}`) as HTMLCanvasElement;
@@ -136,9 +148,7 @@ export class WasmComponent {
 
             const olivecCanvas = this.readCanvasFromMemory(canvasPtr);
             if (olivecCanvas.width != olivecCanvas.stride) {
-              console.error(
-                `Canvas width (${canvas.width}) is not equal to its stride (${olivecCanvas.stride}).`
-              );
+              console.error(`Canvas width (${canvas.width}) is not equal to its stride (${olivecCanvas.stride}).`);
               return;
             }
             const image = new ImageData(new Uint8ClampedArray(olivecCanvas.pixels), canvas.width);
@@ -204,7 +214,6 @@ export class WasmComponent {
       if (this.instance.exports.init_component) {
         this.instance.exports.init_component();
       }
-      this.initialized = true;
     }
 
     const resultAddr = this.instance.exports.render_component();
@@ -295,6 +304,21 @@ export class WasmComponent {
     } else {
       morphdom(existingRootElement, newRootElement);
     }
+
+    if (!this.initialized) {
+      // Register animation frame callbacks
+      if (this.animationFrameCallbacks.length > 0) {
+        const runAnimationFrameCallbacks = () => {
+          for (const callback of this.animationFrameCallbacks) {
+            callback();
+          }
+          requestAnimationFrame(runAnimationFrameCallbacks);
+        };
+        requestAnimationFrame(runAnimationFrameCallbacks);
+      }
+    }
+
+    this.initialized = true;
   }
 
   readCanvasFromMemory(ptr: number) {
