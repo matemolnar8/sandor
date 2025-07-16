@@ -1,4 +1,5 @@
 const apps = [
+  { value: "canvas", label: "Canvas" },
   { value: "test", label: "Test" },
   { value: "todolist", label: "Todolist" },
 ];

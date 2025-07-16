@@ -5,10 +5,12 @@ type WasmInstance = {
   exports: {
     memory: WebAssembly.Memory;
     render_component: () => number;
+    init_component?: () => void;
     invoke_on_click: (elementIndex: number) => void;
     invoke_on_change: (elementIndex: number, valuePtr: number) => void;
     get_input_buffer: () => number;
     get_element_layout: () => number;
+    invoke_animation_frame_callback: (callbackPtr: number, dt: number) => void;
   };
 };
 
@@ -19,13 +21,15 @@ const ElementType = {
   GENERIC: 0,
   BUTTON: 1,
   INPUT: 2,
+  CANVAS: 3,
 } as const;
 
-type ElementTypeKeys = "generic" | "button" | "input";
+type ElementTypeKeys = "generic" | "button" | "input" | "canvas";
 type ElementSpecificOffsets = {
   generic: { tag: number };
   button: { onClick: number; onClickArgs: number };
   input: { placeholder: number; onChange: number };
+  canvas: { id: number; width: number; height: number };
 };
 type ElementOffsets = {
   type: number;
@@ -46,6 +50,11 @@ type ElementSpecificProps = {
   input: {
     placeholder: string;
     onChange: (value: string) => void;
+  };
+  canvas: {
+    canvasId: string;
+    width: number;
+    height: number;
   };
 };
 
@@ -69,6 +78,12 @@ declare global {
   }
 }
 
+const libm = {
+  atan2f: Math.atan2,
+  cosf: Math.cos,
+  sinf: Math.sin,
+  sqrtf: Math.sqrt,
+};
 export class WasmComponent {
   #instance: (WebAssembly.Instance & WasmInstance) | undefined;
   #memoryDataView: DataView | undefined;
@@ -76,6 +91,8 @@ export class WasmComponent {
   wasmPath: string;
   parent: HTMLElement | undefined;
   instanceId = crypto.randomUUID();
+  initialized = false;
+  animationFrameCallbacks: (() => void)[] = [];
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -98,12 +115,44 @@ export class WasmComponent {
     this.#instance = (
       await WebAssembly.instantiateStreaming(fetch(this.wasmPath), {
         env: {
+          ...libm,
           platform_write: (buf: number, len: number) => {
             const text = decoder.decode(new Uint8Array(this.instance.exports.memory.buffer, buf, len));
             console.log(text);
           },
           platform_rerender: () => {
             this.render();
+          },
+          platform_on_animation_frame: (callbackPtr: number) => {
+            let dt = 0;
+            let now = performance.now();
+            const callback = () => {
+              dt = (performance.now() - now) / 1000; // Convert to seconds
+              this.instance.exports.invoke_animation_frame_callback(callbackPtr, dt);
+              now = performance.now();
+            };
+            this.animationFrameCallbacks.push(callback);
+          },
+          platform_draw_canvas: (canvasIdPtr: number, canvasPtr: number) => {
+            const canvasId = this.readString(canvasIdPtr);
+            const canvas = parent.querySelector(`#${canvasId}`) as HTMLCanvasElement;
+            if (!canvas) {
+              console.error("Canvas element not found");
+              return;
+            }
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              console.error("Failed to get canvas context");
+              return;
+            }
+
+            const olivecCanvas = this.readCanvasFromMemory(canvasPtr);
+            if (olivecCanvas.width != olivecCanvas.stride) {
+              console.error(`Canvas width (${canvas.width}) is not equal to its stride (${olivecCanvas.stride}).`);
+              return;
+            }
+            const image = new ImageData(new Uint8ClampedArray(olivecCanvas.pixels), canvas.width);
+            ctx.putImageData(image, 0, 0);
           },
         },
       })
@@ -129,6 +178,9 @@ export class WasmComponent {
       BUTTON_ON_CLICK_ARGS: 8,
       INPUT_PLACEHOLDER: 9,
       INPUT_ON_CHANGE: 10,
+      CANVAS_ID: 11,
+      CANVAS_WIDTH: 12,
+      CANVAS_HEIGHT: 13,
     };
 
     this.#elementOffsets = {
@@ -149,10 +201,21 @@ export class WasmComponent {
         placeholder: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_PLACEHOLDER * sizeOfSizeT, true),
         onChange: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_ON_CHANGE * sizeOfSizeT, true),
       },
+      canvas: {
+        id: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_ID * sizeOfSizeT, true),
+        width: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_WIDTH * sizeOfSizeT, true),
+        height: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_HEIGHT * sizeOfSizeT, true),
+      },
     };
   }
 
   render() {
+    if (!this.initialized) {
+      if (this.instance.exports.init_component) {
+        this.instance.exports.init_component();
+      }
+    }
+
     const resultAddr = this.instance.exports.render_component();
     const root = this.readElement(resultAddr);
 
@@ -192,6 +255,16 @@ export class WasmComponent {
             renderResult.onChange(target.value);
           });
           break;
+
+        case "canvas":
+          element = document.createElement("canvas");
+          element.id = renderResult.canvasId;
+          element.setAttribute("width", renderResult.width.toString());
+          element.setAttribute("height", renderResult.height.toString());
+          break;
+
+        default:
+          throw new Error(`Unknown element type: ${(renderResult as any).elementType}`);
       }
 
       // Apply common properties
@@ -231,6 +304,37 @@ export class WasmComponent {
     } else {
       morphdom(existingRootElement, newRootElement);
     }
+
+    if (!this.initialized) {
+      // Register animation frame callbacks
+      if (this.animationFrameCallbacks.length > 0) {
+        const runAnimationFrameCallbacks = () => {
+          for (const callback of this.animationFrameCallbacks) {
+            callback();
+          }
+          requestAnimationFrame(runAnimationFrameCallbacks);
+        };
+        requestAnimationFrame(runAnimationFrameCallbacks);
+      }
+    }
+
+    this.initialized = true;
+  }
+
+  readCanvasFromMemory(ptr: number) {
+    const dataView = new DataView(this.instance.exports.memory.buffer);
+    const pixelsPtr = dataView.getUint32(ptr, true);
+    const width = dataView.getUint32(ptr + 4, true);
+    const height = dataView.getUint32(ptr + 8, true);
+    const stride = dataView.getUint32(ptr + 12, true);
+    const pixels = new Uint8ClampedArray(this.instance.exports.memory.buffer, pixelsPtr, width * height * 4);
+
+    return {
+      width,
+      height,
+      stride,
+      pixels,
+    };
   }
 
   readElement(address: number): ResultElement {
@@ -329,6 +433,24 @@ export class WasmComponent {
           children,
           attributes,
           onChange,
+        };
+      }
+
+      case ElementType.CANVAS: {
+        const idPtr = dataView.getUint32(unionAddress + offsets.canvas.id, true);
+        const canvasId = this.readString(idPtr);
+        const width = dataView.getUint32(unionAddress + offsets.canvas.width, true);
+        const height = dataView.getUint32(unionAddress + offsets.canvas.height, true);
+
+        return {
+          elementType: "canvas",
+          id,
+          canvasId,
+          width,
+          height,
+          text,
+          children,
+          attributes,
         };
       }
 
