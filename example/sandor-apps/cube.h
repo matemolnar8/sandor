@@ -56,6 +56,4 @@ Olivec_Canvas render_cube(float dt)
     return oc;
 }
 
-char* cube_canvas_id = "cube-canvas";
-
 #endif // CUBE_H
