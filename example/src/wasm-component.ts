@@ -92,7 +92,7 @@ export class WasmComponent {
   parent: HTMLElement | undefined;
   instanceId = crypto.randomUUID();
   initialized = false;
-  animationFrameCallbacks: (() => void)[] = [];
+  animationFrameCallbacks: ((time: number) => void)[] = [];
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -124,12 +124,12 @@ export class WasmComponent {
             this.render();
           },
           platform_on_animation_frame: (callbackPtr: number) => {
-            let dt = 0;
-            let now = performance.now();
-            const callback = () => {
-              dt = (performance.now() - now) / 1000; // Convert to seconds
+            let time_prev = 0;
+            const callback = (time: number) => {
+              time_prev = time_prev || time;
+              const dt = (time - time_prev) / 1000; // Convert to seconds
+              time_prev = time;
               this.instance.exports.invoke_animation_frame_callback(callbackPtr, dt);
-              now = performance.now();
             };
             this.animationFrameCallbacks.push(callback);
           },
@@ -308,9 +308,9 @@ export class WasmComponent {
     if (!this.initialized) {
       // Register animation frame callbacks
       if (this.animationFrameCallbacks.length > 0) {
-        const runAnimationFrameCallbacks = () => {
+        const runAnimationFrameCallbacks = (time: number) => {
           for (const callback of this.animationFrameCallbacks) {
-            callback();
+            callback(time);
           }
           requestAnimationFrame(runAnimationFrameCallbacks);
         };
