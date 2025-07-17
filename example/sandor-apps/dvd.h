@@ -5,9 +5,6 @@
 #define DVD_SQUARE_SIZE 30
 #define DVD_SPEED 100.0f
 
-uint32_t dvd_pixels[WIDTH*HEIGHT];
-Olivec_Canvas dvd_canvas = OLIVEC_CANVAS_NULL;
-
 static float dvd_x = 50.0f;
 static float dvd_y = 50.0f;
 static float dvd_dx = DVD_SPEED;
@@ -30,26 +27,26 @@ void dvd_change_color() {
     dvd_color = dvd_colors[dvd_color_index];
 }
 
-Olivec_Canvas render_dvd(float dt)
+Olivec_Canvas render_dvd(float dt, uint32_t* pixels, int width, int height)
 {
     // Update position
     dvd_x += dvd_dx * dt;
     dvd_y += dvd_dy * dt;
     
     // Bounce off walls and change color
-    if (dvd_x <= 0 || dvd_x >= WIDTH - DVD_SQUARE_SIZE) {
+    if (dvd_x <= 0 || dvd_x >= width - DVD_SQUARE_SIZE) {
         dvd_dx = -dvd_dx;
-        dvd_x = (dvd_x <= 0) ? 0 : WIDTH - DVD_SQUARE_SIZE;
+        dvd_x = (dvd_x <= 0) ? 0 : width - DVD_SQUARE_SIZE;
         dvd_change_color();
     }
     
-    if (dvd_y <= 0 || dvd_y >= HEIGHT - DVD_SQUARE_SIZE) {
+    if (dvd_y <= 0 || dvd_y >= height - DVD_SQUARE_SIZE) {
         dvd_dy = -dvd_dy;
-        dvd_y = (dvd_y <= 0) ? 0 : HEIGHT - DVD_SQUARE_SIZE;
+        dvd_y = (dvd_y <= 0) ? 0 : height - DVD_SQUARE_SIZE;
         dvd_change_color();
     }
     
-    Olivec_Canvas oc = olivec_canvas(dvd_pixels, WIDTH, HEIGHT, WIDTH);
+    Olivec_Canvas oc = olivec_canvas(pixels, width, height, width);
     
     // Clear background
     olivec_fill(oc, DVD_BACKGROUND_COLOR);

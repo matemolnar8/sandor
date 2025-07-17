@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include "sandor.h"
+#include "cube.h"
 
 typedef struct {
     char* title;
@@ -27,6 +28,24 @@ Element* render_example_component() {
     );
 }
 // End of example component
+
+// Demo canvas
+#define DEMO_WIDTH 300
+#define DEMO_HEIGHT 300
+
+char* demo_canvas_id = "demo-canvas";
+uint32_t demo_cube_pixels[DEMO_WIDTH*DEMO_HEIGHT];
+Olivec_Canvas demo_cube_canvas = OLIVEC_CANVAS_NULL;
+
+void draw_demo_canvas(float dt) {
+    demo_cube_canvas = render_cube(dt, demo_cube_pixels, DEMO_WIDTH, DEMO_HEIGHT);
+    platform_draw_canvas(demo_canvas_id, &demo_cube_canvas);
+}
+
+void init_component() {
+    platform_on_animation_frame(draw_demo_canvas);
+}
+// End of demo canvas
 
 // Common slide styles
 #define SLIDE_BASE_CLASSES "bg-base-100 p-8 rounded-2xl shadow-xl"
@@ -139,14 +158,64 @@ Slide get_slide(size_t slide_index) {
                 )
             };
         
-        case 4: // Future plans slide
+        case 4: // Canvas slide
+            return (Slide) {
+                .title = "🎨 Canvas Example",
+                .background_class = "bg-base-200",
+                .content = class(
+                    element("div", children(
+                        class(
+                            element("div", children(
+                                class(text_element("h2", "Code"), "text-xl font-bold mb-4"),
+                                text_element("pre", "#include \"sandor.h\"\n"
+                                                   "#include \"cube.h\"\n"
+                                                   "\n"
+                                                   "#define WIDTH 400\n"
+                                                   "#define HEIGHT 400\n"
+                                                   "\n"
+                                                   "char* canvas_id = \"my-canvas\";\n"
+                                                   "uint32_t pixels[WIDTH*HEIGHT];\n"
+                                                   "Olivec_Canvas canvas;\n"
+                                                   "\n"
+                                                   "void draw_canvas(float dt) {\n"
+                                                   "    canvas = render_cube(dt, pixels, WIDTH, HEIGHT);\n"
+                                                   "    platform_draw_canvas(canvas_id, &canvas);\n"
+                                                   "}\n"
+                                                   "\n"
+                                                   "void init_component() {\n"
+                                                   "    platform_on_animation_frame(draw_canvas);\n"
+                                                   "}\n"
+                                                   "\n"
+                                                   "Element* render_component() {\n"
+                                                   "    return attributes(element(\"canvas\", NULL),\n"
+                                                   "        \"id\", canvas_id,\n"
+                                                   "        \"width\", \"400\", \"height\", \"400\");\n"
+                                                   "}")
+                            )),
+                            "text-sm flex-1 " CODE_SLIDE_CLASSES
+                        ),
+                        class(
+                            element("div", children(
+                                attributes(
+                                    element("canvas", NULL),
+                                    "id", "demo-canvas",
+                                    "width", "300", "height", "300"
+                                )
+                            )),
+                            "flex flex-col items-center justify-center " SLIDE_BASE_CLASSES
+                        )
+                    )),
+                    "flex gap-6 w-full"
+                )
+            };
+        
+        case 5: // Future plans slide
             return (Slide) {
                 .title = "What's next?",
                 .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
                         class(element("ul", children(
-                            text_element("li", "🎨 Canvas rendering"),
                             text_element("li", "⌨️ Keyboard events"),
                             text_element("li", "📦 Actually single-header"),
                             text_element("li", "🔌 Standalone TS bridge")
@@ -156,7 +225,7 @@ Slide get_slide(size_t slide_index) {
                 )
             };
         
-        case 5: // Thank you slide
+        case 6: // Thank you slide
             return (Slide) {
                 .title = "Thanks!",
                 .background_class = "bg-success",
@@ -183,7 +252,7 @@ Slide get_slide(size_t slide_index) {
     }
 }
 
-#define SLIDE_COUNT 6
+#define SLIDE_COUNT 7
 size_t current_slide = 0;
 
 void next_slide(void* args) {
