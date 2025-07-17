@@ -73,8 +73,8 @@ Slide get_slide(size_t slide_index) {
                 .content = class(
                     element("div", children(
                         class(element("ul", children(
-                            text_element("li", "Single-header library for web UIs in C"),
-                            text_element("li", "Recreational programming"),
+                            text_element("li", "Single-header* library for web UIs in C"),
+                            text_element("li", "Recreational programming project"),
                             text_element("li", "Powers this presentation")
                         )), "list-disc list-inside text-left")
                     )),
@@ -114,7 +114,7 @@ Slide get_slide(size_t slide_index) {
         
         case 3: // Code slide
             return (Slide) {
-                .title = "💻 Example Component",
+                .title = "💻 Example component",
                 .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
@@ -160,7 +160,7 @@ Slide get_slide(size_t slide_index) {
         
         case 4: // Canvas slide
             return (Slide) {
-                .title = "🎨 Canvas Example",
+                .title = "🎨 Canvas example",
                 .background_class = "bg-base-200",
                 .content = class(
                     element("div", children(
@@ -219,7 +219,7 @@ Slide get_slide(size_t slide_index) {
                             text_element("li", "⌨️ Keyboard events"),
                             text_element("li", "📦 Actually single-header"),
                             text_element("li", "🔌 Standalone TS bridge"),
-                            text_element("li", "🚁 Continue having fun programming"),
+                            text_element("li", "🚁 Continue having fun programming")
                         )), "list-none text-left")
                     )),
                     TEXT_SLIDE_CLASSES
@@ -309,7 +309,7 @@ Element* slide_content(Slide slide) {
         element("div", children(
             class(
                 text_element("h1", slide.title), 
-                "text-7xl font-black mb-12 text-center"
+                "text-7xl font-black mb-12 text-center rounded-lg shadow-lg bg-base-100 p-6"
             ),
             slide.content
         )),
