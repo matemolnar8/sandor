@@ -218,7 +218,8 @@ Slide get_slide(size_t slide_index) {
                         class(element("ul", children(
                             text_element("li", "⌨️ Keyboard events"),
                             text_element("li", "📦 Actually single-header"),
-                            text_element("li", "🔌 Standalone TS bridge")
+                            text_element("li", "🔌 Standalone TS bridge"),
+                            text_element("li", "🚁 Continue having fun programming"),
                         )), "list-none text-left")
                     )),
                     TEXT_SLIDE_CLASSES
