@@ -3,24 +3,124 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sandor WASM Examples</title>
+    <title>sandor.h</title>
     <link href="./style.css" rel="stylesheet" />
   </head>
   <body class="h-full flex flex-col bg-base-100">
     <script type="module" src="./src/wasm-shell-component.ts"></script>
     <script type="module" src="./src/app-switcher.ts"></script>
 
-    <header class="navbar bg-base-200 shadow-lg">
-      <div class="navbar-start">
-        <h1 class="text-xl font-bold font-mono text-primary">sandor.h</h1>
-      </div>
-      <div class="navbar-end">
-        <select
-          class="select select-bordered select-primary w-64 hover:-translate-y-px transition-transform duration-200"
-          id="app-selector"
-        ></select>
-      </div>
-    </header>
+    <div class="fixed top-0 left-0 right-0 h-5 z-50 group">
+      <header class="navbar bg-base-200 shadow-lg fixed top-0 left-0 right-0 z-40 -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
+        <div class="navbar-start">
+          <h1 class="text-xl font-bold font-mono text-primary">sandor.h</h1>
+        </div>
+        <div class="navbar-end gap-2">
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-sm btn-ghost">
+              Theme
+              <svg
+                width="12px"
+                height="12px"
+                class="inline-block h-2 w-2 fill-current opacity-60"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 2048 2048">
+                <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+              </svg>
+            </div>
+            <ul tabindex="0" class="dropdown-content bg-base-300 rounded-box z-50 w-52 p-2 shadow-2xl">
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Default"
+                  value="default" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Corporate"
+                  value="corporate" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Nord"
+                  value="nord" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Dim"
+                  value="dim" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Luxury"
+                  value="luxury" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Retro"
+                  value="retro" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Silk"
+                  value="silk" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Business"
+                  value="business" />
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label="Dracula"
+                  value="dracula" />
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-sm btn-ghost" id="app-selector-button">
+              <span id="app-selector-label">Loading...</span>
+              <svg
+                width="12px"
+                height="12px"
+                class="inline-block h-2 w-2 fill-current opacity-60"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 2048 2048">
+                <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+              </svg>
+            </div>
+            <ul tabindex="0" class="dropdown-content bg-base-300 rounded-box z-50 w-48 p-2 shadow-2xl" id="app-selector-dropdown">
+            </ul>
+          </div>
+        </div>
+      </header>
+    </div>
 
     <main class="flex-1">
       <div id="app-container" class="w-full h-full"></div>

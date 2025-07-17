@@ -54,5 +54,9 @@ int main(int argc, char **argv)
         return 1;
     }
     
+    if (!build_sandor_app("presentation")) {
+        return 1;
+    }
+    
     return 0;
 }

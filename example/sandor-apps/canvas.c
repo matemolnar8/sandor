@@ -2,13 +2,6 @@
 
 #define WIDTH 400
 #define HEIGHT 300
-#define PI 3.14159265359
-
-// Math functions provided by the platform
-float sqrtf(float x);
-float atan2f(float y, float x);
-float sinf(float x);
-float cosf(float x);
 
 #include "cube.h"
 #include "dvd.h"
@@ -18,15 +11,21 @@ int render_count = 0;
 char* cube_canvas_id = "cube-canvas";
 char* dvd_canvas_id = "dvd-canvas";
 
+uint32_t cube_pixels[WIDTH*HEIGHT];
+Olivec_Canvas cube_canvas = OLIVEC_CANVAS_NULL;
+
+uint32_t dvd_pixels[WIDTH*HEIGHT];
+Olivec_Canvas dvd_canvas = OLIVEC_CANVAS_NULL;
+
 void draw_cube_canvas(float dt)
 {
-    cube_canvas = render_cube(dt);
+    cube_canvas = render_cube(dt, cube_pixels, WIDTH, HEIGHT);
     platform_draw_canvas(cube_canvas_id, &cube_canvas);
 }
 
 void draw_dvd_canvas(float dt)
 {
-    dvd_canvas = render_dvd(dt);
+    dvd_canvas = render_dvd(dt, dvd_pixels, WIDTH, HEIGHT);
     platform_draw_canvas(dvd_canvas_id, &dvd_canvas);
 }
 
