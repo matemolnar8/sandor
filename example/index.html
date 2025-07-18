@@ -10,11 +10,10 @@
     <script type="module" src="./src/wasm-shell-component.ts"></script>
     <script type="module" src="./src/app-switcher.ts"></script>
 
-    <div class="fixed top-0 left-0 right-0 h-5 z-50 group">
-      <header class="navbar bg-base-200 shadow-lg fixed top-0 left-0 right-0 z-40 -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
-        <div class="navbar-start">
-          <h1 class="text-xl font-bold font-mono text-primary">sandor.h</h1>
-        </div>
+    <header class="navbar bg-base-200 shadow-xl border-b border-base-300" id="navbar">
+      <div class="navbar-start">
+        <h1 class="text-xl font-bold font-mono text-primary">sandor.h</h1>
+      </div>
         <div class="navbar-end gap-2">
           <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" class="btn btn-sm btn-ghost">
@@ -120,9 +119,8 @@
           </div>
         </div>
       </header>
-    </div>
 
-    <main class="flex-1">
+    <main class="flex-1" id="main-content">
       <div id="app-container" class="w-full h-full"></div>
   </body>
 </html>
