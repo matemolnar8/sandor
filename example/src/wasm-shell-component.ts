@@ -40,6 +40,11 @@ class WasmShellComponent extends HTMLElement {
 
     this.wasmComponent?.render();
   }
+
+  disconnectedCallback() {
+    this.wasmComponent?.destroy();
+    this.wasmComponent = undefined;
+  }
 }
 
 customElements.define("wasm-shell-component", WasmShellComponent);

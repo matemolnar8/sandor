@@ -217,6 +217,28 @@ export class WasmComponent {
     };
   }
 
+  destroy() {
+    if (this.animationFrameHandle !== 0) {
+      cancelAnimationFrame(this.animationFrameHandle);
+    }
+    this.animationFrameCallbacks.clear();
+
+    // Clean up the parent element
+    if (this.parent) {
+      const existingRootElement = this.parent.querySelector(`[data-instance-id="${this.instanceId}"]`);
+      if (existingRootElement) {
+        this.parent.removeChild(existingRootElement);
+      }
+    }
+
+    // Clear instance and memory data view
+    this.#instance = undefined;
+    this.#memoryDataView = undefined;
+    this.#elementOffsets = undefined;
+
+    this.initialized = false;
+  }
+
   render() {
     if (!this.initialized) {
       if (this.instance.exports.init_component) {
