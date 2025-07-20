@@ -146,6 +146,7 @@ typedef struct {
 void platform_rerender();
 void platform_draw_canvas(char* canvas_id, Olivec_Canvas* canvas);
 void platform_on_animation_frame(void (*callback)(float dt));
+void platform_clear_animation_frame(void (*callback)(float dt));
 
 Arena r_arena = {0};
 Elements r_elements = {0};

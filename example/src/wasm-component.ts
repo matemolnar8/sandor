@@ -92,7 +92,10 @@ export class WasmComponent {
   parent: HTMLElement | undefined;
   instanceId = crypto.randomUUID();
   initialized = false;
-  animationFrameCallbacks: ((time: number) => void)[] = [];
+
+  // Map pointer to animation frame callbacks
+  animationFrameCallbacks = new Map<number, (time: number) => void>();
+  animationFrameHandle: number = 0;
 
   constructor(wasmPath: string) {
     this.wasmPath = wasmPath;
@@ -131,7 +134,12 @@ export class WasmComponent {
               time_prev = time;
               this.instance.exports.invoke_animation_frame_callback(callbackPtr, dt);
             };
-            this.animationFrameCallbacks.push(callback);
+            this.animationFrameCallbacks.set(callbackPtr, callback);
+            this.checkAndRunAnimationFrameCallbacks();
+          },
+          platform_clear_animation_frame: (callbackPtr: number) => {
+            this.animationFrameCallbacks.delete(callbackPtr);
+            this.checkAndRunAnimationFrameCallbacks();
           },
           platform_draw_canvas: (canvasIdPtr: number, canvasPtr: number) => {
             const canvasId = this.readString(canvasIdPtr);
@@ -306,19 +314,30 @@ export class WasmComponent {
     }
 
     if (!this.initialized) {
-      // Register animation frame callbacks
-      if (this.animationFrameCallbacks.length > 0) {
-        const runAnimationFrameCallbacks = (time: number) => {
-          for (const callback of this.animationFrameCallbacks) {
-            callback(time);
-          }
-          requestAnimationFrame(runAnimationFrameCallbacks);
-        };
-        requestAnimationFrame(runAnimationFrameCallbacks);
-      }
+      this.checkAndRunAnimationFrameCallbacks();
     }
 
     this.initialized = true;
+  }
+
+  runAnimationFrameCallbacks = (time: number) => {
+    this.animationFrameCallbacks.forEach((callback) => {
+      callback(time);
+    });
+
+    this.checkAndRunAnimationFrameCallbacks();
+  };
+
+  checkAndRunAnimationFrameCallbacks() {
+    if (this.animationFrameHandle !== 0) {
+      cancelAnimationFrame(this.animationFrameHandle);
+    }
+
+    if (this.animationFrameCallbacks.size > 0) {
+      this.animationFrameHandle = requestAnimationFrame(this.runAnimationFrameCallbacks);
+    } else {
+      cancelAnimationFrame(this.animationFrameHandle);
+    }
   }
 
   readCanvasFromMemory(ptr: number) {

@@ -41,10 +41,6 @@ void draw_demo_canvas(float dt) {
     demo_cube_canvas = render_cube(dt, demo_cube_pixels, DEMO_WIDTH, DEMO_HEIGHT);
     platform_draw_canvas(demo_canvas_id, &demo_cube_canvas);
 }
-
-void init_component() {
-    platform_on_animation_frame(draw_demo_canvas);
-}
 // End of demo canvas
 
 // Common slide styles
@@ -319,6 +315,14 @@ Element* slide_content(Slide slide) {
 
 Element* render_component() {
     Slide slide = get_slide(current_slide);
+
+    if(current_slide == 4) {
+        // Ensure the demo canvas is drawn on the canvas slide
+        platform_on_animation_frame(draw_demo_canvas);
+    } else {
+        // Clear any previous animation frame callbacks
+        platform_clear_animation_frame(draw_demo_canvas);
+    }
     
     return class(
         element("div", children(
