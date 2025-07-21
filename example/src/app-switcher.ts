@@ -12,6 +12,19 @@ function createApp(name: string) {
   return app;
 }
 
+function getInitialApp(): string {
+  const urlParams = new URLSearchParams(window.location.search);
+  const appParam = urlParams.get('app');
+  
+  // Check if the app parameter is valid
+  if (appParam && apps.some(app => app.value === appParam)) {
+    return appParam;
+  }
+  
+  // Default to first app
+  return apps[0].value;
+}
+
 function switchApp(name: string) {
   const container = document.getElementById("app-container")!;
   container.innerHTML = "";
@@ -41,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dropdown.appendChild(li);
   });
 
-  // Initialize with first app
-  switchApp(apps[0].value);
+  // Initialize with app from URL params or first app
+  const initialApp = getInitialApp();
+  switchApp(initialApp);
 });
