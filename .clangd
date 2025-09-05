@@ -21,3 +21,20 @@ If:
 CompileFlags:
   Remove:
     - -Werror
+
+---
+If:
+  PathMatch:
+    - example/sandor-apps/.*
+
+CompileFlags:
+  Add:
+    - -I.
+    - -Ithirdparty
+    - -Os
+    - -g
+    - -mbulk-memory
+    - --target=wasm32
+    - -nostdlib
+    - -fno-builtin
+    - -DOLIVEC_IMPLEMENTATION

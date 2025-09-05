@@ -1,6 +1,12 @@
 #ifndef CUBE_H
 #define CUBE_H
 
+#include <stdint.h>
+
+#ifndef OLIVE_C_
+#include "olive.c"
+#endif
+
 #define CUBE_PI 3.14159265359f
 #define CUBE_BACKGROUND_COLOR 0xFF181818
 #define CUBE_GRID_COUNT 10

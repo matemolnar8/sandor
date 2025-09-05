@@ -1,6 +1,12 @@
 #ifndef DVD_H
 #define DVD_H
 
+#include <stdint.h>
+
+#ifndef OLIVE_C_
+#include "olive.c"
+#endif
+
 #define DVD_BACKGROUND_COLOR 0xFF181818
 #define DVD_SQUARE_SIZE 30
 #define DVD_SPEED 100.0f
