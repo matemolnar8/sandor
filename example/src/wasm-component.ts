@@ -1,4 +1,4 @@
-import { assertAndGet } from "./util/assert-value.js";
+import { assertAndGet } from "./util/assert-value";
 import morphdom from "morphdom";
 
 type WasmInstance = {
@@ -11,6 +11,7 @@ type WasmInstance = {
     get_input_buffer: () => number;
     get_element_layout: () => number;
     invoke_animation_frame_callback: (callbackPtr: number, dt: number) => void;
+    get_layout_word_size: () => number;
   };
 };
 
@@ -171,7 +172,7 @@ export class WasmComponent {
     // Read layout offsets from WASM memory
     const layoutPtr = this.instance.exports.get_element_layout();
     const layoutView = new DataView(this.instance.exports.memory.buffer);
-    const sizeOfSizeT = 4;
+    const layoutWordSize = this.instance.exports.get_layout_word_size();
 
     // Layout array indices (must match the C array order)
     const LAYOUT = {
@@ -192,27 +193,27 @@ export class WasmComponent {
     };
 
     this.#elementOffsets = {
-      type: layoutView.getUint32(layoutPtr + LAYOUT.TYPE * sizeOfSizeT, true),
-      index: layoutView.getUint32(layoutPtr + LAYOUT.INDEX * sizeOfSizeT, true),
-      text: layoutView.getUint32(layoutPtr + LAYOUT.TEXT * sizeOfSizeT, true),
-      children: layoutView.getUint32(layoutPtr + LAYOUT.CHILDREN * sizeOfSizeT, true),
-      attributes: layoutView.getUint32(layoutPtr + LAYOUT.ATTRIBUTES * sizeOfSizeT, true),
-      union: layoutView.getUint32(layoutPtr + LAYOUT.UNION * sizeOfSizeT, true),
+      type: layoutView.getUint32(layoutPtr + LAYOUT.TYPE * layoutWordSize, true),
+      index: layoutView.getUint32(layoutPtr + LAYOUT.INDEX * layoutWordSize, true),
+      text: layoutView.getUint32(layoutPtr + LAYOUT.TEXT * layoutWordSize, true),
+      children: layoutView.getUint32(layoutPtr + LAYOUT.CHILDREN * layoutWordSize, true),
+      attributes: layoutView.getUint32(layoutPtr + LAYOUT.ATTRIBUTES * layoutWordSize, true),
+      union: layoutView.getUint32(layoutPtr + LAYOUT.UNION * layoutWordSize, true),
       generic: {
-        tag: layoutView.getUint32(layoutPtr + LAYOUT.GENERIC_TAG * sizeOfSizeT, true),
+        tag: layoutView.getUint32(layoutPtr + LAYOUT.GENERIC_TAG * layoutWordSize, true),
       },
       button: {
-        onClick: layoutView.getUint32(layoutPtr + LAYOUT.BUTTON_ON_CLICK * sizeOfSizeT, true),
-        onClickArgs: layoutView.getUint32(layoutPtr + LAYOUT.BUTTON_ON_CLICK_ARGS * sizeOfSizeT, true),
+        onClick: layoutView.getUint32(layoutPtr + LAYOUT.BUTTON_ON_CLICK * layoutWordSize, true),
+        onClickArgs: layoutView.getUint32(layoutPtr + LAYOUT.BUTTON_ON_CLICK_ARGS * layoutWordSize, true),
       },
       input: {
-        placeholder: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_PLACEHOLDER * sizeOfSizeT, true),
-        onChange: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_ON_CHANGE * sizeOfSizeT, true),
+        placeholder: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_PLACEHOLDER * layoutWordSize, true),
+        onChange: layoutView.getUint32(layoutPtr + LAYOUT.INPUT_ON_CHANGE * layoutWordSize, true),
       },
       canvas: {
-        id: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_ID * sizeOfSizeT, true),
-        width: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_WIDTH * sizeOfSizeT, true),
-        height: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_HEIGHT * sizeOfSizeT, true),
+        id: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_ID * layoutWordSize, true),
+        width: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_WIDTH * layoutWordSize, true),
+        height: layoutView.getUint32(layoutPtr + LAYOUT.CANVAS_HEIGHT * layoutWordSize, true),
       },
     };
   }

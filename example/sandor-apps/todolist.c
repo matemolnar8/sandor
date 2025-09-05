@@ -39,7 +39,7 @@ void add_todo(void* args)
 
     Todo* todo = arena_alloc(&todo_list_arena, sizeof(Todo));
     *todo = (Todo) {
-        .text = arena_sprintf(&todo_list_arena, input_text, todos.count + 1),
+        .text = arena_strdup(&todo_list_arena, input_text),
         .completed = false
     };
 

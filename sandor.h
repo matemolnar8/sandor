@@ -314,14 +314,6 @@ Element* canvas(char* id, size_t width, size_t height)
     return result;
 }
 
-#define TEXT_CAPACITY 256
-
-Element* text_element_empty(const char* tag)
-{
-    Element* result = element(tag, NULL);
-    result->text = arena_alloc(&r_arena, TEXT_CAPACITY);
-    return result;
-}
 
 Element* text_element(const char* tag, const char* text)
 {
@@ -412,6 +404,11 @@ const size_t* get_element_layout() {
         sizeof(Element)
     };
     return layout;
+}
+
+[[clang::export_name("get_layout_word_size")]]
+size_t get_layout_word_size() {
+    return sizeof(size_t);
 }
 
 #endif // SANDOR_H
