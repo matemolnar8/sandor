@@ -1,0 +1,12 @@
+---
+description: Project architecture and workflow overview
+---
+# Architecture & workflow
+- Core library in C (`sandor.h`); browser bridge in TS (`example/src/wasm-component.ts`).
+- Build: Vite app in `example/`; C→WASM via `./nob`.
+- TS↔WASM contract: stable exports for render/events/memory layout; host provides logging/rerender/animation/canvas.
+- Dev
+  - `cd example && npm run dev`
+  - `./nob` to rebuild WASM during edits
+  - `npm run build` for production
+- Adding an app: new `example/sandor-apps/*.c`, include in `nob.c`, list in `app-switcher.ts`.

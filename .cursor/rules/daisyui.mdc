@@ -1,0 +1,13 @@
+---
+description: daisyUI usage quick guide (from .vscode/daisyui.md)
+---
+# daisyUI quick guide
+- CSS setup:
+```css
+@import "tailwindcss";
+@plugin "daisyui";
+```
+- Use daisyUI classes + Tailwind utilities; avoid custom CSS.
+- Prefer semantic colors (`bg-primary`, `text-base-content`).
+- Themes via `data-theme` on `<html>` or `theme-controller` inputs.
+- Only use valid daisyUI/Tailwind classes; keep layouts responsive.

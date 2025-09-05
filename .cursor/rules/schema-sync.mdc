@@ -1,0 +1,8 @@
+---
+globs: example/src/wasm-component.ts, sandor.h
+---
+# Schema sync
+- Keep TS parsing logic aligned with C `Element` structs and union fields.
+- If C element types or field layout changes, update TS offsets and element handling together.
+- Preserve the attributes encoding contract (key/value pairs) unless TS is updated in lockstep.
+- After C changes, rebuild WASM and verify interactions (click, input, canvas) in the example app.

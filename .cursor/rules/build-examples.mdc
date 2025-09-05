@@ -1,0 +1,9 @@
+---
+description: Build C examples (from .github/instructions/build-examples.instructions.md)
+---
+# Build C examples
+- Rebuild WASM apps:
+```bash
+cd example
+./nob
+```

@@ -1,0 +1,8 @@
+---
+globs: sandor.h, thirdparty/**
+---
+# C/WASM
+- Interop contract: keep exported symbols stable; TS relies on them for rendering and events.
+- Host imports: logging, rerender, animation frame control, and canvas drawing must be provided by the JS host.
+- Memory: prefer arena allocators for render-scoped data; reset each render; avoid persistent pointers to freed memory.
+- Assertions: use `ASSERT` for invariants to catch issues early during development.

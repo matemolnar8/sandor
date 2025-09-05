@@ -1,0 +1,10 @@
+---
+globs: example/src/**/*.ts
+---
+# TypeScript
+- Keep strict type-safety; avoid `any`; type exported APIs and class fields.
+- Guard assumptions with `assert`/`assertAndGet`; prefer early returns and shallow control flow.
+- Interop: treat WASM memory as unsafe I/O; validate pointers/lengths; read via DataView with explicit endianness.
+- Rendering: build DOM only from parsed data; attach events only when callbacks exist; avoid side effects in render.
+- Reliability: fail fast with clear errors; don’t swallow exceptions.
+- Hygiene: preserve import paths/extensions; do not reformat unrelated code.

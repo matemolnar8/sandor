@@ -1,0 +1,9 @@
+---
+description: Build after editing sandor.h (from .github/instructions/build-header.h.instructions.md)
+---
+# Build after editing sandor.h
+- Rebuild examples to validate header changes:
+```bash
+cd example
+./nob
+```
