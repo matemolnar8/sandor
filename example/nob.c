@@ -12,6 +12,9 @@
                      "-Wl,--initial-memory=10485760", "-Wl,--allow-undefined"
 
 
+Cmd cmd = {0};
+Procs procs = {0};
+
 bool build_sandor_app(char* name)
 {
     nob_log(INFO, "Building %s...", name);
@@ -23,19 +26,17 @@ bool build_sandor_app(char* name)
     
     char* output_path = temp_sprintf("public/%s.wasm", name);
 
-    Cmd cmd = {0};
     cmd_append(&cmd, "clang");
     cmd_append(&cmd, WASM_CFLAGS);
     cmd_append(&cmd, WASM_LDFLAGS);
     cmd_append(&cmd, "-o", output_path);
     cmd_append(&cmd, temp_sprintf("sandor-apps/%s.c", name));
     
-    if (!cmd_run_sync(cmd)) {
-        nob_log(ERROR, "Failed to build %s", output_path);
+    if (!cmd_run(&cmd, .async = &procs)) {
+        nob_log(ERROR, "Failed to start building %s", output_path);
         return false;
     }
     
-    nob_log(INFO, "Successfully built %s", output_path);
     return true;
 }
 
@@ -57,6 +58,10 @@ int main(int argc, char **argv)
     }
     
     if (!build_sandor_app("presentation")) {
+        return 1;
+    }
+
+    if (!procs_flush(&procs)) {
         return 1;
     }
     
