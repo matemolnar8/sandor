@@ -1,5 +1,6 @@
 ---
-globs: example/src/wasm-component.ts, sandor.h
+globs: example/src/wasm-component.ts,sandor.h
+alwaysApply: false
 ---
 # Schema sync
 - Keep TS parsing logic aligned with C `Element` structs and union fields.

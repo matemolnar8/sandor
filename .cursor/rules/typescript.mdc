@@ -1,5 +1,6 @@
 ---
 globs: example/src/**/*.ts
+alwaysApply: false
 ---
 # TypeScript
 - Keep strict type-safety; avoid `any`; type exported APIs and class fields.

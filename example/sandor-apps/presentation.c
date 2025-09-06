@@ -39,7 +39,13 @@ Olivec_Canvas demo_cube_canvas = OLIVEC_CANVAS_NULL;
 
 void draw_demo_canvas(float dt) {
     demo_cube_canvas = render_cube(dt, demo_cube_pixels, DEMO_WIDTH, DEMO_HEIGHT);
-    platform_draw_canvas(demo_canvas_id, &demo_cube_canvas);
+    Canvas view = {
+        .pixels = demo_cube_canvas.pixels,
+        .width = demo_cube_canvas.width,
+        .height = demo_cube_canvas.height,
+        .stride = demo_cube_canvas.stride,
+    };
+    platform_draw_canvas(demo_canvas_id, &view);
 }
 // End of demo canvas
 

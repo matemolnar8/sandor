@@ -25,11 +25,10 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "macros.h"
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
-#define OLIVEC_IMPLEMENTATION
-#include "olive.c"
 
 void platform_write(void *buffer, size_t len);
 
@@ -144,7 +143,15 @@ typedef struct {
     } 
 
 void platform_rerender();
-void platform_draw_canvas(char* canvas_id, Olivec_Canvas* canvas);
+
+typedef struct {
+    uint32_t *pixels;
+    size_t width;
+    size_t height;
+    size_t stride;
+} Canvas;
+
+void platform_draw_canvas(char* canvas_id, Canvas* canvas);
 void platform_on_animation_frame(void (*callback)(float dt));
 void platform_clear_animation_frame(void (*callback)(float dt));
 

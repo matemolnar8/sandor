@@ -1,5 +1,6 @@
 ---
-description: Build C examples (from .github/instructions/build-examples.instructions.md)
+globs: example/**/*.c
+alwaysApply: false
 ---
 # Build C examples
 - Rebuild WASM apps:

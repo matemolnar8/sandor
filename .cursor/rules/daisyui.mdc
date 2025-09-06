@@ -1,5 +1,6 @@
 ---
-description: daisyUI usage quick guide (from .vscode/daisyui.md)
+description: daisyUI usage quick guide
+alwaysApply: false
 ---
 # daisyUI quick guide
 - CSS setup:

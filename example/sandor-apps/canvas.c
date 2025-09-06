@@ -20,13 +20,25 @@ Olivec_Canvas dvd_canvas = OLIVEC_CANVAS_NULL;
 void draw_cube_canvas(float dt)
 {
     cube_canvas = render_cube(dt, cube_pixels, WIDTH, HEIGHT);
-    platform_draw_canvas(cube_canvas_id, &cube_canvas);
+    Canvas view = {
+        .pixels = cube_canvas.pixels,
+        .width = cube_canvas.width,
+        .height = cube_canvas.height,
+        .stride = cube_canvas.stride,
+    };
+    platform_draw_canvas(cube_canvas_id, &view);
 }
 
 void draw_dvd_canvas(float dt)
 {
     dvd_canvas = render_dvd(dt, dvd_pixels, WIDTH, HEIGHT);
-    platform_draw_canvas(dvd_canvas_id, &dvd_canvas);
+    Canvas view = {
+        .pixels = dvd_canvas.pixels,
+        .width = dvd_canvas.width,
+        .height = dvd_canvas.height,
+        .stride = dvd_canvas.stride,
+    };
+    platform_draw_canvas(dvd_canvas_id, &view);
 }
 
 void draw_all_canvases(float dt)

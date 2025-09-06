@@ -155,12 +155,12 @@ export class WasmComponent {
               return;
             }
 
-            const olivecCanvas = this.readCanvasFromMemory(canvasPtr);
-            if (olivecCanvas.width != olivecCanvas.stride) {
-              console.error(`Canvas width (${canvas.width}) is not equal to its stride (${olivecCanvas.stride}).`);
+            const sandorCanvas = this.readCanvasFromMemory(canvasPtr);
+            if (sandorCanvas.width != sandorCanvas.stride) {
+              console.error(`Canvas width (${canvas.width}) is not equal to its stride (${sandorCanvas.stride}).`);
               return;
             }
-            const image = new ImageData(new Uint8ClampedArray(olivecCanvas.pixels), canvas.width);
+            const image = new ImageData(new Uint8ClampedArray(sandorCanvas.pixels), canvas.width);
             ctx.putImageData(image, 0, 0);
           },
         },

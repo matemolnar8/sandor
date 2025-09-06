@@ -1,5 +1,6 @@
 ---
-globs: sandor.h, thirdparty/**
+globs: sandor.h,example/**/*.c,example/**/*.h
+alwaysApply: false
 ---
 # C/WASM
 - Interop contract: keep exported symbols stable; TS relies on them for rendering and events.

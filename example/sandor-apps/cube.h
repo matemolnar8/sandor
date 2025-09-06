@@ -4,6 +4,9 @@
 #include <stdint.h>
 
 #ifndef OLIVE_C_
+#ifndef OLIVEC_IMPLEMENTATION
+#define OLIVEC_IMPLEMENTATION
+#endif
 #include "olive.c"
 #endif
 

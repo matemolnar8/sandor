@@ -1,5 +1,6 @@
 ---
-description: Build after editing sandor.h (from .github/instructions/build-header.h.instructions.md)
+globs: sandor.h
+alwaysApply: false
 ---
 # Build after editing sandor.h
 - Rebuild examples to validate header changes:
