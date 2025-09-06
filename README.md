@@ -9,6 +9,6 @@ A UI library for creating web UIs in C.
 ```bash
 cd example
 npm install
-npm run nob:bootstrap   # builds ./nob helper once
+npm run nob:bootstrap   # builds ./nob build system once
 npm run dev             # starts Vite and nob to rebuild .wasm on changes
 ```
