@@ -4,18 +4,13 @@
 #define HEIGHT 300
 
 #include "cube.h"
-#include "dvd.h"
 
 int render_count = 0;
 
 char* cube_canvas_id = "cube-canvas";
-char* dvd_canvas_id = "dvd-canvas";
 
 uint32_t cube_pixels[WIDTH*HEIGHT];
 Olivec_Canvas cube_canvas = OLIVEC_CANVAS_NULL;
-
-uint32_t dvd_pixels[WIDTH*HEIGHT];
-Olivec_Canvas dvd_canvas = OLIVEC_CANVAS_NULL;
 
 void draw_cube_canvas(float dt)
 {
@@ -29,27 +24,9 @@ void draw_cube_canvas(float dt)
     platform_draw_canvas(cube_canvas_id, &view);
 }
 
-void draw_dvd_canvas(float dt)
-{
-    dvd_canvas = render_dvd(dt, dvd_pixels, WIDTH, HEIGHT);
-    Canvas view = {
-        .pixels = dvd_canvas.pixels,
-        .width = dvd_canvas.width,
-        .height = dvd_canvas.height,
-        .stride = dvd_canvas.stride,
-    };
-    platform_draw_canvas(dvd_canvas_id, &view);
-}
-
-void draw_all_canvases(float dt)
-{
-    draw_cube_canvas(dt);
-    draw_dvd_canvas(dt);
-}
-
 void init_component() {
     printf("Initializing Canvas Component\n");
-    platform_on_animation_frame(draw_all_canvases);
+    platform_on_animation_frame(draw_cube_canvas);
 }
 
 Element* render_component()
@@ -57,37 +34,21 @@ Element* render_component()
     render_count++;
 
     Element* cube_canvas_element = canvas(cube_canvas_id, 400, 300);
-    Element* dvd_canvas_element = canvas(dvd_canvas_id, 400, 300);
 
     return class(
         element("div", children(
             class(text_element("h1", "Canvas App"), "text-3xl font-bold mb-6"),
-            class(text_element("p", "Multiple canvas animations running simultaneously"), "text-lg mb-4"),
+            class(text_element("p", "Canvas animation demo"), "text-lg mb-4"),
             text_element("p", arena_sprintf(&r_arena, "Render count: %d", render_count)),
             class(
                 element("div", children(
+                    class(text_element("h3", "\"3D\" Cube"), "text-xl font-semibold mb-2"),
                     class(
-                        element("div", children(
-                            class(text_element("h3", "\"3D\" Cube"), "text-xl font-semibold mb-2"),
-                            class(
-                                cube_canvas_element,
-                                "border-2 border-gray-300 bg-white rounded-lg shadow-md"
-                            )
-                        )),
-                        "flex flex-col items-center"
-                    ),
-                    class(
-                        element("div", children(
-                            class(text_element("h3", "DVD Screensaver"), "text-xl font-semibold mb-2"),
-                            class(
-                                dvd_canvas_element,
-                                "border-2 border-gray-300 bg-black rounded-lg shadow-md"
-                            )
-                        )),
-                        "flex flex-col items-center"
+                        cube_canvas_element,
+                        "border-2 border-gray-300 bg-white rounded-lg shadow-md"
                     )
                 )),
-                "flex gap-8 flex-wrap justify-center"
+                "flex flex-col items-center"
             )
         )),
         "flex-1 flex flex-col items-center justify-center gap-6 p-6"

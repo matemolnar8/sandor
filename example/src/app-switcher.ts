@@ -1,6 +1,7 @@
 const apps = [
   { value: "presentation", label: "Presentation" },
   { value: "canvas", label: "Canvas" },
+  { value: "dvd", label: "DVD Screensaver" },
   { value: "test", label: "Test" },
   { value: "todolist", label: "Todolist" },
 ];
