@@ -10,7 +10,7 @@
 #include "olive.c"
 #endif
 
-#include "dvd_logo.h"
+#include "assets/dvd_logo.c"
 
 #define DVD_BACKGROUND_COLOR 0xFF181818
 #define DVD_SPEED 100.0f
@@ -34,7 +34,7 @@ uint32_t dvd_colors[] = {
 static int dvd_color_index = 0;
 
 // Working copy of the logo texture, recolored to the current bounce color.
-static uint32_t dvd_logo_tinted_pixels[DVD_LOGO_WIDTH * DVD_LOGO_HEIGHT];
+static uint32_t dvd_logo_tinted_pixels[sizeof(dvd_logo_pixels) / sizeof(dvd_logo_pixels[0])];
 
 void dvd_change_color() {
     dvd_color_index = (dvd_color_index + 1) % (sizeof(dvd_colors) / sizeof(dvd_colors[0]));
@@ -49,7 +49,7 @@ static void dvd_update_tinted_logo(void)
     uint32_t tr = OLIVEC_RED(dvd_color);
     uint32_t tg = OLIVEC_GREEN(dvd_color);
     uint32_t tb = OLIVEC_BLUE(dvd_color);
-    size_t n = DVD_LOGO_WIDTH * DVD_LOGO_HEIGHT;
+    size_t n = dvd_logo_width * dvd_logo_height;
 
     for (size_t i = 0; i < n; i++) {
         uint32_t src = dvd_logo_pixels[i];
@@ -63,8 +63,8 @@ static void dvd_update_tinted_logo(void)
 
 Olivec_Canvas render_dvd(float dt, uint32_t* pixels, int width, int height)
 {
-    int logo_w = DVD_LOGO_WIDTH;
-    int logo_h = DVD_LOGO_HEIGHT;
+    int logo_w = (int)dvd_logo_width;
+    int logo_h = (int)dvd_logo_height;
 
     dvd_x += dvd_dx * dt;
     dvd_y += dvd_dy * dt;
@@ -87,9 +87,9 @@ Olivec_Canvas render_dvd(float dt, uint32_t* pixels, int width, int height)
     dvd_update_tinted_logo();
     Olivec_Canvas logo = olivec_canvas(
         dvd_logo_tinted_pixels,
-        DVD_LOGO_WIDTH,
-        DVD_LOGO_HEIGHT,
-        DVD_LOGO_WIDTH
+        dvd_logo_width,
+        dvd_logo_height,
+        dvd_logo_width
     );
     olivec_sprite_blend(oc, (int)dvd_x, (int)dvd_y, logo_w, logo_h, logo);
 

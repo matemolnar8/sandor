@@ -6,5 +6,8 @@ dist
 nob
 nob.old
 
+# nob generated tools/assets
+build
+
 # Wasm binaries
 *.wasm
