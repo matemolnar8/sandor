@@ -15,7 +15,13 @@ export default defineConfig({
               {
                 name: "nob",
                 run: ["./nob"],
-                pattern: ["sandor-apps/*.c", "sandor-apps/*.h"],
+                pattern: [
+                  "sandor-apps/*.c",
+                  "sandor-apps/*.h",
+                  "assets/*",
+                  "tools/*",
+                  "nob.c",
+                ],
               },
             ],
             silent: false,

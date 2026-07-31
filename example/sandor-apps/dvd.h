@@ -10,8 +10,9 @@
 #include "olive.c"
 #endif
 
+#include "assets/dvd_logo.c"
+
 #define DVD_BACKGROUND_COLOR 0xFF181818
-#define DVD_SQUARE_SIZE 30
 #define DVD_SPEED 100.0f
 
 static float dvd_x = 50.0f;
@@ -19,6 +20,7 @@ static float dvd_y = 50.0f;
 static float dvd_dx = DVD_SPEED;
 static float dvd_dy = DVD_SPEED;
 static uint32_t dvd_color = 0xFF00FF00; // Start with green
+static bool dvd_tint_dirty = true;
 
 uint32_t dvd_colors[] = {
     0xFF00FF00, // Green
@@ -31,41 +33,66 @@ uint32_t dvd_colors[] = {
 };
 static int dvd_color_index = 0;
 
+// Working copy of the logo texture, recolored to the current bounce color.
+static uint32_t dvd_logo_tinted_pixels[sizeof(dvd_logo_pixels) / sizeof(dvd_logo_pixels[0])];
+
 void dvd_change_color() {
     dvd_color_index = (dvd_color_index + 1) % (sizeof(dvd_colors) / sizeof(dvd_colors[0]));
     dvd_color = dvd_colors[dvd_color_index];
+    dvd_tint_dirty = true;
+}
+
+static void dvd_update_tinted_logo(void)
+{
+    if (!dvd_tint_dirty) return;
+
+    uint32_t tr = OLIVEC_RED(dvd_color);
+    uint32_t tg = OLIVEC_GREEN(dvd_color);
+    uint32_t tb = OLIVEC_BLUE(dvd_color);
+    size_t n = dvd_logo_width * dvd_logo_height;
+
+    for (size_t i = 0; i < n; i++) {
+        uint32_t src = dvd_logo_pixels[i];
+        uint32_t a = OLIVEC_ALPHA(src);
+        // Keep logo coverage (alpha), replace RGB with the bounce tint.
+        dvd_logo_tinted_pixels[i] = (a << 24) | (tb << 16) | (tg << 8) | tr;
+    }
+
+    dvd_tint_dirty = false;
 }
 
 Olivec_Canvas render_dvd(float dt, uint32_t* pixels, int width, int height)
 {
-    // Update position
+    int logo_w = (int)dvd_logo_width;
+    int logo_h = (int)dvd_logo_height;
+
     dvd_x += dvd_dx * dt;
     dvd_y += dvd_dy * dt;
-    
-    // Bounce off walls and change color
-    if (dvd_x <= 0 || dvd_x >= width - DVD_SQUARE_SIZE) {
+
+    if (dvd_x <= 0 || dvd_x >= width - logo_w) {
         dvd_dx = -dvd_dx;
-        dvd_x = (dvd_x <= 0) ? 0 : width - DVD_SQUARE_SIZE;
+        dvd_x = (dvd_x <= 0) ? 0 : width - logo_w;
         dvd_change_color();
     }
-    
-    if (dvd_y <= 0 || dvd_y >= height - DVD_SQUARE_SIZE) {
+
+    if (dvd_y <= 0 || dvd_y >= height - logo_h) {
         dvd_dy = -dvd_dy;
-        dvd_y = (dvd_y <= 0) ? 0 : height - DVD_SQUARE_SIZE;
+        dvd_y = (dvd_y <= 0) ? 0 : height - logo_h;
         dvd_change_color();
     }
-    
+
     Olivec_Canvas oc = olivec_canvas(pixels, width, height, width);
-    
-    // Clear background
     olivec_fill(oc, DVD_BACKGROUND_COLOR);
-    
-    // Draw simple colored square
-    int square_x = (int)dvd_x;
-    int square_y = (int)dvd_y;
-    
-    olivec_rect(oc, square_x, square_y, DVD_SQUARE_SIZE, DVD_SQUARE_SIZE, dvd_color);
-    
+
+    dvd_update_tinted_logo();
+    Olivec_Canvas logo = olivec_canvas(
+        dvd_logo_tinted_pixels,
+        dvd_logo_width,
+        dvd_logo_height,
+        dvd_logo_width
+    );
+    olivec_sprite_blend(oc, (int)dvd_x, (int)dvd_y, logo_w, logo_h, logo);
+
     return oc;
 }
 
